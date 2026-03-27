@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Career Forward — Spark Newsletter</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --amex-blue: #006FCF;
+    --amex-dark: #00175A;
+    --amex-mid: #0057A0;
+    --amex-light: #e8f2fc;
+    --gold: #C8973A;
+    --gold-light: #E8B455;
+    --cream: #fafaf8;
+    --warm: #f4f4f0;
+    --border: #dfe3e8;
+    --muted: #6b7280;
+    --ink: #0f1923;
+    --page: 700px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #cdd5e0;
+    font-family: 'Outfit', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 48px 20px 80px;
+  }
+  #toolbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    background: var(--amex-dark);
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 20px; flex-wrap: wrap;
+  }
+  .tb-title { font-size: 13px; font-weight: 600; color: #fff; margin-right: 4px; }
+  .tb-title span { color: var(--gold-light); }
+  .tb-sep { width: 1px; height: 18px; background: rgba(255,255,255,0.15); }
+  .tb-btn {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+    color: #fff; padding: 5px 14px; border-radius: 4px; cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 11px; transition: all 0.15s;
+  }
+  .tb-btn:hover { background: var(--amex-blue); border-color: var(--amex-blue); }
+  #mode-badge {
+    margin-left: auto; padding: 3px 12px; border-radius: 20px;
+    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500;
+    background: var(--gold); color: var(--amex-dark);
+  }
+  #page-wrapper { margin-top: 50px; }
+  #newsletter {
+    max-width: var(--page); margin: 0 auto; background: var(--cream);
+    box-shadow: 0 4px 48px rgba(0,23,90,0.18), 0 1px 6px rgba(0,0,0,0.06);
+  }
+  .nl-header {
+    background: var(--amex-dark); padding: 36px 48px 0;
+    position: relative; overflow: hidden;
+  }
+  .nl-header::before {
+    content: '';
+    position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+    background: repeating-linear-gradient(-55deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 28px);
+    pointer-events: none;
+  }
+  .nl-header::after {
+    content: ''; position: absolute; bottom: 0; right: -60px;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(0,111,207,0.3) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-top {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    position: relative; z-index: 1; margin-bottom: 30px;
+  }
+  .logo-block { display: flex; align-items: center; gap: 16px; }
+  .shield-wrap { width: 60px; height: 68px; position: relative; flex-shrink: 0; }
+  .logo-text { display: flex; flex-direction: column; }
+  .logo-programme {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 3px;
+  }
+  .logo-name { font-family: 'Outfit', sans-serif; font-size: 21px; font-weight: 700; color: #fff; letter-spacing: -0.01em; line-height: 1; }
+  .logo-name span { color: var(--gold-light); }
+  .logo-pillar { font-size: 11px; color: rgba(255,255,255,0.38); margin-top: 4px; }
+  .issue-meta {
+    text-align: right; font-family: 'DM Mono', monospace; font-size: 10.5px;
+    color: rgba(255,255,255,0.3); line-height: 1.9; letter-spacing: 0.06em;
+    position: relative; z-index: 1;
+  }
+  .issue-meta .iss-num { font-size: 13px; color: var(--gold-light); font-weight: 500; display: block; margin-bottom: 2px; }
+  .nl-title-block {
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 22px 0 32px; position: relative; z-index: 1;
+  }
+  .nl-eyebrow { font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--amex-blue); margin-bottom: 8px; }
+  .nl-main-title { font-family: 'Cormorant Garamond', serif; font-size: 66px; font-weight: 700; color: #fff; line-height: 0.92; letter-spacing: -0.02em; }
+  .nl-main-title em { font-style: italic; color: var(--gold-light); }
+  .nl-subtitle { font-size: 14px; color: rgba(255,255,255,0.42); margin-top: 14px; font-weight: 300; max-width: 420px; line-height: 1.6; }
+  .accent-bar { height: 5px; background: linear-gradient(90deg, var(--amex-blue) 0%, var(--gold) 65%, transparent 100%); }
+  .date-strip {
+    background: var(--warm); border-bottom: 1px solid var(--border);
+    padding: 12px 48px; display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; letter-spacing: 0.04em;
+  }
+  .edition-pill { background: var(--amex-blue); color: #fff; padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .nl-body { padding: 0 48px 56px; }
+  .sec-div { display: flex; align-items: center; gap: 12px; margin: 38px 0 20px; }
+  .sec-div .sd-pill {
+    background: var(--amex-dark); color: #fff;
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    padding: 5px 14px; border-radius: 20px; white-space: nowrap;
+  }
+  .sec-div .sd-line { flex: 1; height: 1px; background: var(--border); }
+  .from-desk { background: var(--amex-light); border-left: 4px solid var(--amex-blue); padding: 22px 26px; border-radius: 0 4px 4px 0; }
+  .fd-label { font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--amex-blue); margin-bottom: 10px; }
+  .from-desk p { font-size: 14.5px; line-height: 1.78; color: #1e2d3d; font-weight: 300; }
+  .from-desk .sign { margin-top: 12px; font-size: 13px; color: var(--muted); font-style: italic; }
+  .hero-story { border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .hero-img {
+    height: 210px; background: linear-gradient(135deg, var(--amex-dark) 0%, var(--amex-mid) 100%);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden; cursor: pointer;
+  }
+  .hero-img .img-hint { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 0.08em; text-transform: uppercase; z-index: 1; }
+  .hero-img img { width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0; }
+  .hero-content { padding: 24px 28px 26px; }
+  .story-tag { display: inline-block; font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--amex-blue); font-weight: 500; margin-bottom: 10px; }
+  .story-title { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 700; line-height: 1.2; color: var(--amex-dark); margin-bottom: 12px; }
+  .story-body { font-size: 14.5px; line-height: 1.78; color: #2e3a48; font-weight: 300; }
+  .story-cta { display: inline-flex; align-items: center; gap: 6px; margin-top: 16px; font-size: 13px; font-weight: 600; color: var(--amex-blue); text-decoration: none; }
+  .story-cta::after { content: '→'; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .col-card { border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .col-img {
+    height: 120px; background: linear-gradient(135deg, var(--amex-dark), var(--amex-mid));
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden; cursor: pointer;
+  }
+  .col-img .img-hint { font-family: 'DM Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.2); letter-spacing: 0.07em; text-transform: uppercase; z-index:1; }
+  .col-img img { width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0; }
+  .col-content { padding: 16px 18px 18px; }
+  .col-content .story-title { font-size: 19px; margin-bottom: 8px; }
+  .col-content .story-body { font-size: 13px; }
+  .tips-list { display: flex; flex-direction: column; gap: 14px; }
+  .tip-card { display: flex; gap: 16px; align-items: flex-start; padding: 18px 20px; border: 1px solid var(--border); border-radius: 4px; background: var(--warm); }
+  .tip-num { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 700; color: var(--amex-blue); line-height: 1; flex-shrink: 0; width: 36px; text-align: center; margin-top: 2px; opacity: 0.6; }
+  .tip-body { flex: 1; }
+  .tip-title { font-size: 15px; font-weight: 600; color: var(--amex-dark); margin-bottom: 5px; }
+  .tip-text { font-size: 13.5px; line-height: 1.68; color: #3a4450; font-weight: 300; }
+  .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .stat-cell { background: var(--warm); padding: 22px 16px; text-align: center; }
+  .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 700; color: var(--amex-dark); line-height: 1; }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 5px; line-height: 1.4; }
+  .quote-block { background: var(--amex-dark); padding: 30px 34px; border-radius: 4px; position: relative; overflow: hidden; }
+  .quote-block::before { content: '"'; position: absolute; font-family: 'Cormorant Garamond', serif; font-size: 200px; top: -40px; left: 12px; color: rgba(255,255,255,0.04); line-height: 1; }
+  .qb-label { font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--gold-light); margin-bottom: 12px; }
+  .qb-text { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-style: italic; line-height: 1.45; color: #fff; }
+  .qb-attr { margin-top: 14px; font-size: 13px; color: rgba(255,255,255,0.38); }
+  .checklist { display: flex; flex-direction: column; gap: 10px; }
+  .check-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px; border: 1px solid var(--border); border-radius: 4px; background: #fff; }
+  .check-box { width: 22px; height: 22px; border: 2px solid var(--amex-blue); border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
+  .check-box.done { background: var(--amex-blue); }
+  .check-box.done::after { content: '✓'; color: #fff; font-size: 12px; font-weight: 700; }
+  .check-item-text { flex: 1; }
+  .check-item-title { font-size: 14px; font-weight: 600; color: var(--amex-dark); margin-bottom: 3px; }
+  .check-item-desc { font-size: 13px; color: var(--muted); font-weight: 300; line-height: 1.5; }
+  .side-article { display: flex; gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+  .side-article:last-child { border-bottom: none; }
+  .side-img { width: 110px; height: 80px; background: linear-gradient(135deg, var(--amex-dark), var(--amex-mid)); border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
+  .side-img .img-hint { font-family: 'DM Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.2); letter-spacing:0.06em; text-transform:uppercase; }
+  .side-img img { width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0; }
+  .side-text .story-title { font-size: 17px; margin-bottom: 6px; }
+  .side-text .story-body { font-size: 13px; }
+  .add-btn { display: none; width: 100%; padding: 11px; margin-top: 14px; border: 2px dashed var(--border); background: transparent; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; border-radius: 4px; transition: all 0.15s; }
+  body.edit-mode .add-btn { display: block; }
+  .add-btn:hover { border-color: var(--amex-blue); color: var(--amex-blue); }
+  .del-btn { display: none; font-family: 'DM Mono', monospace; font-size: 10px; padding: 3px 10px; border-radius: 3px; border: 1px dashed #ddd; background: transparent; color: #bbb; cursor: pointer; margin-top: 8px; transition: all 0.15s; }
+  body.edit-mode .del-btn { display: inline-block; }
+  .del-btn:hover { border-color: #e74c3c; color: #e74c3c; }
+  [contenteditable="true"] { outline: none; border-radius: 2px; transition: background 0.15s, box-shadow 0.15s; }
+  body.edit-mode [contenteditable="true"]:hover { background: rgba(0,111,207,0.05); }
+  body.edit-mode [contenteditable="true"]:focus { background: rgba(200,151,58,0.07); box-shadow: 0 0 0 2px rgba(200,151,58,0.28); }
+  .nl-footer { background: var(--amex-dark); padding: 30px 48px; }
+  .footer-inner { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
+  .fl-brand { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 700; color: #fff; }
+  .fl-brand em { font-style: italic; color: var(--gold-light); }
+  .fl-sub { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 4px; }
+  .footer-right { font-size: 12px; color: rgba(255,255,255,0.3); text-align: right; line-height: 2; font-family: 'DM Mono', monospace; }
+  .footer-right a { color: #6ab0f5; text-decoration: none; display: block; }
+  .footer-bottom { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.07); font-family: 'DM Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.18); letter-spacing: 0.06em; text-align: center; }
+  @media print {
+    #toolbar, .add-btn, .del-btn { display: none !important; }
+    body { background: white; padding: 0; }
+    #newsletter { box-shadow: none; max-width: 100%; }
+    #page-wrapper { margin-top: 0; }
+    [contenteditable] { background: transparent !important; box-shadow: none !important; }
+  }
+</style>
+</head>
+<body class="edit-mode">
+
+<div id="toolbar">
+  <div class="tb-title">✦ <span>Career Forward</span></div>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" onclick="toggleEdit()">Toggle Edit</button>
+  <button class="tb-btn" onclick="addTipCard()">+ Add Tip</button>
+  <button class="tb-btn" onclick="addSideArticle()">+ Add Article</button>
+  <button class="tb-btn" onclick="addColCard()">+ Add Card</button>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" onclick="window.print()">🖨 Print / PDF</button>
+  <div id="mode-badge">EDIT MODE ON</div>
+</div>
+
+<div id="page-wrapper">
+<div id="newsletter">
+
+  <header class="nl-header">
+    <div class="header-top">
+      <div class="logo-block">
+        <div class="shield-wrap">
+          <svg width="60" height="68" viewBox="0 0 60 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M30 2L4 13V34C4 49.5 15.2 63.2 30 67C44.8 63.2 56 49.5 56 34V13L30 2Z" fill="url(#sg)"/>
+            <path d="M30 2L4 13V34C4 49.5 15.2 63.2 30 67C44.8 63.2 56 49.5 56 34V13L30 2Z" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
+            <path d="M30 9L11 17.5V34C11 46 19.5 57 30 60.5C40.5 57 49 46 49 34V17.5L30 9Z" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+            <!-- C letter -->
+            <path d="M17 26.5C17 23 19.7 20 23.5 20H27V23.2H23.5C21.6 23.2 20.2 24.6 20.2 26.5V34.5C20.2 36.4 21.6 37.8 23.5 37.8H27V41H23.5C19.7 41 17 38 17 34.5V26.5Z" fill="white" opacity="0.93"/>
+            <!-- F letter -->
+            <path d="M30 20H41V23.2H33.2V29H40V32.2H33.2V41H30V20Z" fill="white" opacity="0.93"/>
+            <!-- Gold star -->
+            <path d="M30 51.5L31.8 55.5H36L32.8 57.8L34 62L30 59.6L26 62L27.2 57.8L24 55.5H28.2L30 51.5Z" fill="#E8B455"/>
+            <defs>
+              <linearGradient id="sg" x1="4" y1="2" x2="56" y2="67" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#0057A0"/>
+                <stop offset="100%" stop-color="#00175A"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <div class="logo-programme">Spark Enterprise · Culture Pillar</div>
+          <div class="logo-name">Spark <span>Programme</span></div>
+          <div class="logo-pillar" contenteditable="true">Colleague Engagement Initiative</div>
+        </div>
+      </div>
+      <div class="issue-meta">
+        <span class="iss-num" contenteditable="true">Issue No. 01</span>
+        <span contenteditable="true">Monthly Edition</span><br/>
+        <span contenteditable="true">March 2026</span>
+      </div>
+    </div>
+    <div class="nl-title-block">
+      <div class="nl-eyebrow">Newsletter</div>
+      <div class="nl-main-title">Career <em>Forward</em></div>
+      <div class="nl-subtitle" contenteditable="true">Helping you grow, prepare, and step confidently into what's next.</div>
+    </div>
+  </header>
+  <div class="accent-bar"></div>
+
+  <div class="date-strip">
+    <span contenteditable="true">📅 March 26, 2026</span>
+    <span class="edition-pill" contenteditable="true">Monthly Edition</span>
+    <span contenteditable="true">Next issue: April 2026</span>
+  </div>
+
+  <div class="nl-body">
+
+```
+<div class="sec-div" style="margin-top:32px">
+  <div class="sd-pill">✦ From the Desk</div><div class="sd-line"></div>
+</div>
+<div class="from-desk">
+  <div class="fd-label">A note from the Spark team</div>
+  <p contenteditable="true">Welcome to Career Forward — your monthly guide to growing intentionally within our organisation. This newsletter isn't about job listings. It's about equipping you with the mindset, skills, and awareness to be ready when the right opportunity comes. Read, reflect, and take one step forward this month.</p>
+  <div class="sign" contenteditable="true">— The Spark Programme Team</div>
+</div>
+
+<div class="sec-div">
+  <div class="sd-pill">⭐ Feature Story</div><div class="sd-line"></div>
+</div>
+<div class="hero-story">
+  <div class="hero-img" onclick="triggerImg(this)">
+    <span class="img-hint">Click to add image</span>
+    <input type="file" accept="image/*" style="display:none" onchange="loadImg(event,this.parentElement)">
+  </div>
+  <div class="hero-content">
+    <div class="story-tag" contenteditable="true">🎯 Career Readiness</div>
+    <div class="story-title" contenteditable="true">What Does It Really Mean to Be "Ready" for the Next Step?</div>
+    <div class="story-body" contenteditable="true">Write your main feature article here. This could be a colleague's growth story, a reflection on career development, or a deep-dive into a skill or mindset that helps people prepare for their next role. Two to three paragraphs — make it human, make it useful.</div>
+    <a class="story-cta" contenteditable="true">Read more</a>
+  </div>
+</div>
+
+<div class="sec-div">
+  <div class="sd-pill">🚀 Perspectives</div><div class="sd-line"></div>
+</div>
+<div class="two-col" id="two-col-grid">
+  <div class="col-card">
+    <div class="col-img" onclick="triggerImg(this)">
+      <span class="img-hint">Add image</span>
+      <input type="file" accept="image/*" style="display:none" onchange="loadImg(event,this.parentElement)">
+    </div>
+    <div class="col-content">
+      <div class="story-tag" contenteditable="true">Mindset</div>
+      <div class="story-title" contenteditable="true">Owning Your Development</div>
+      <div class="story-body" contenteditable="true">A short piece on taking initiative in your own growth — not waiting for someone to hand you a path.</div>
+      <button class="del-btn" onclick="removeEl(this,'.col-card')">✕ Remove</button>
+    </div>
+  </div>
+  <div class="col-card">
+    <div class="col-img" onclick="triggerImg(this)">
+      <span class="img-hint">Add image</span>
+      <input type="file" accept="image/*" style="display:none" onchange="loadImg(event,this.parentElement)">
+    </div>
+    <div class="col-content">
+      <div class="story-tag" contenteditable="true">Skills</div>
+      <div class="story-title" contenteditable="true">The Skills That Matter Most Right Now</div>
+      <div class="story-body" contenteditable="true">What capabilities are most valued in our organisation today — and how can you build them?</div>
+      <button class="del-btn" onclick="removeEl(this,'.col-card')">✕ Remove</button>
+    </div>
+  </div>
+</div>
+<button class="add-btn" onclick="addColCard()">+ Add Perspective Card</button>
+
+<div class="sec-div">
+  <div class="sd-pill">📊 By the Numbers</div><div class="sd-line"></div>
+</div>
+<div class="stat-row">
+  <div class="stat-cell">
+    <div class="stat-num" contenteditable="true">240+</div>
+    <div class="stat-label" contenteditable="true">Colleagues in the Spark Programme</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-num" contenteditable="true">18</div>
+    <div class="stat-label" contenteditable="true">Internal career moves this quarter</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-num" contenteditable="true">92%</div>
+    <div class="stat-label" contenteditable="true">Say Spark helped their career clarity</div>
+  </div>
+</div>
+
+<div class="sec-div">
+  <div class="sd-pill">💡 Tips to Move Forward</div><div class="sd-line"></div>
+</div>
+<div class="tips-list" id="tips-list">
+  <div class="tip-card">
+    <div class="tip-num">1</div>
+    <div class="tip-body">
+      <div class="tip-title" contenteditable="true">Have the Career Conversation Early</div>
+      <div class="tip-text" contenteditable="true">Don't wait for your annual review to talk about where you want to go. Schedule a dedicated 30 minutes with your manager this month — just about your future, not your current tasks.</div>
+    </div>
+    <button class="del-btn" onclick="removeEl(this,'.tip-card')" style="align-self:center;margin-top:0;margin-left:10px">✕</button>
+  </div>
+  <div class="tip-card">
+    <div class="tip-num">2</div>
+    <div class="tip-body">
+      <div class="tip-title" contenteditable="true">Build Visibility, Not Just Skills</div>
+      <div class="tip-text" contenteditable="true">Skills get you ready. Visibility gets you considered. Volunteer for cross-functional projects, present your work, and let the right people know what you're capable of.</div>
+    </div>
+    <button class="del-btn" onclick="removeEl(this,'.tip-card')" style="align-self:center;margin-top:0;margin-left:10px">✕</button>
+  </div>
+  <div class="tip-card">
+    <div class="tip-num">3</div>
+    <div class="tip-body">
+      <div class="tip-title" contenteditable="true">Update Your Internal Profile</div>
+      <div class="tip-text" contenteditable="true">Your internal profile is often the first thing a hiring manager sees. Make sure it reflects your current experience, aspirations, and achievements — not just your job title.</div>
+    </div>
+    <button class="del-btn" onclick="removeEl(this,'.tip-card')" style="align-self:center;margin-top:0;margin-left:10px">✕</button>
+  </div>
+</div>
+<button class="add-btn" onclick="addTipCard()">+ Add Tip</button>
+
+<div class="quote-block" style="margin-top:34px">
+  <div class="qb-label">✦ Thought for the Month</div>
+  <div class="qb-text" contenteditable="true">"The best time to prepare for your next role is before it's available. The second best time is today."</div>
+  <div class="qb-attr" contenteditable="true">— Click to edit attribution</div>
+</div>
+
+<div class="sec-div">
+  <div class="sd-pill">✅ Career Readiness Checklist</div><div class="sd-line"></div>
+</div>
+<div class="checklist">
+  <div class="check-item">
+    <div class="check-box done"></div>
+    <div class="check-item-text">
+      <div class="check-item-title" contenteditable="true">I know what my next career step looks like</div>
+      <div class="check-item-desc" contenteditable="true">You have a clear direction — even if broad — and you've shared it with your manager.</div>
+    </div>
+  </div>
+  <div class="check-item">
+    <div class="check-box"></div>
+    <div class="check-item-text">
+      <div class="check-item-title" contenteditable="true">I've identified 1–2 skills to build this quarter</div>
+      <div class="check-item-desc" contenteditable="true">Focused development beats scattered learning. Pick the skills that move the needle most for your goal.</div>
+    </div>
+  </div>
+  <div class="check-item">
+    <div class="check-box"></div>
+    <div class="check-item-text">
+      <div class="check-item-title" contenteditable="true">I have a mentor or growth conversation scheduled</div>
+      <div class="check-item-desc" contenteditable="true">Learning from someone who's been where you want to go accelerates everything.</div>
+    </div>
+  </div>
+  <div class="check-item">
+    <div class="check-box"></div>
+    <div class="check-item-text">
+      <div class="check-item-title" contenteditable="true">My work is visible beyond my immediate team</div>
+      <div class="check-item-desc" contenteditable="true">Have you contributed to something cross-functional or presented your work to a wider audience recently?</div>
+    </div>
+  </div>
+</div>
+
+<div class="sec-div">
+  <div class="sd-pill">📰 More This Month</div><div class="sd-line"></div>
+</div>
+<div id="side-articles">
+  <div class="side-article">
+    <div class="side-img" onclick="triggerImg(this)">
+      <span class="img-hint">Image</span>
+      <input type="file" accept="image/*" style="display:none" onchange="loadImg(event,this.parentElement)">
+    </div>
+    <div class="side-text">
+      <div class="story-tag" contenteditable="true">Book Rec</div>
+      <div class="story-title" contenteditable="true">What We're Reading This Month</div>
+      <div class="story-body" contenteditable="true">A curated recommendation from the Spark team — a book, article, or podcast that will sharpen your thinking about careers and growth.</div>
+      <button class="del-btn" onclick="removeEl(this,'.side-article')">✕ Remove</button>
+    </div>
+  </div>
+  <div class="side-article">
+    <div class="side-img" onclick="triggerImg(this)">
+      <span class="img-hint">Image</span>
+      <input type="file" accept="image/*" style="display:none" onchange="loadImg(event,this.parentElement)">
+    </div>
+    <div class="side-text">
+      <div class="story-tag" contenteditable="true">Colleague Story</div>
+      <div class="story-title" contenteditable="true">In Their Own Words: A Growth Story</div>
+      <div class="story-body" contenteditable="true">A short interview or quote from a colleague who made a meaningful career move and what they learned along the way.</div>
+      <button class="del-btn" onclick="removeEl(this,'.side-article')">✕ Remove</button>
+    </div>
+  </div>
+</div>
+<button class="add-btn" onclick="addSideArticle()">+ Add Article</button>
+```
+
+  </div>
+
+  <footer class="nl-footer">
+    <div class="footer-inner">
+      <div>
+        <div class="fl-brand">Career <em>Forward</em></div>
+        <div class="fl-sub" contenteditable="true">A Spark Programme Newsletter · Culture Pillar</div>
+        <div class="fl-sub" contenteditable="true" style="margin-top:3px">✉ Click to add contact email</div>
+      </div>
+      <div class="footer-right">
+        <a href="#" contenteditable="true">View past issues</a>
+        <a href="#" contenteditable="true">Submit a story</a>
+        <a href="#" contenteditable="true">Share this issue</a>
+      </div>
+    </div>
+    <div class="footer-bottom" contenteditable="true">© 2026 Spark Enterprise Programme · Career Forward Newsletter · All rights reserved</div>
+  </footer>
+
+</div>
+</div>
+
+<script>
+  let editMode = true;
+  function toggleEdit() {
+    editMode = !editMode;
+    document.body.classList.toggle('edit-mode', editMode);
+    const badge = document.getElementById('mode-badge');
+    badge.textContent = editMode ? 'EDIT MODE ON' : 'PREVIEW';
+    badge.style.background = editMode ? 'var(--gold)' : '#2ecc71';
+    document.querySelectorAll('[contenteditable]').forEach(el => {
+      el.contentEditable = editMode ? 'true' : 'false';
+    });
+  }
+  function triggerImg(el) {
+    if (!editMode) return;
+    el.querySelector('input[type=file]').click();
+  }
+  function loadImg(e, container) {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const ex = container.querySelector('img'); if (ex) ex.remove();
+      const img = document.createElement('img'); img.src = ev.target.result;
+      container.appendChild(img);
+      const hint = container.querySelector('.img-hint'); if (hint) hint.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+  function removeEl(btn, selector) {
+    const el = btn.closest(selector);
+    if (el && confirm('Remove this item?')) el.remove();
+  }
+  function addTipCard() {
+    const list = document.getElementById('tips-list');
+    const n = list.querySelectorAll('.tip-card').length + 1;
+    const card = document.createElement('div'); card.className = 'tip-card';
+    card.innerHTML = `<div class="tip-num">${n}</div><div class="tip-body"><div class="tip-title" contenteditable="true">New Tip Title</div><div class="tip-text" contenteditable="true">Write your career tip or insight here.</div></div><button class="del-btn" onclick="removeEl(this,'.tip-card')" style="align-self:center;margin-top:0;margin-left:10px">✕</button>`;
+    list.appendChild(card); card.querySelector('[contenteditable]').focus();
+  }
+  function addSideArticle() {
+    const container = document.getElementById('side-articles');
+    const art = document.createElement('div'); art.className = 'side-article';
+    art.innerHTML = `<div class="side-img" onclick="triggerImg(this)"><span class="img-hint">Image</span><input type="file" accept="image/*" style="display:none" onchange="loadImg(event,this.parentElement)"></div><div class="side-text"><div class="story-tag" contenteditable="true">Category</div><div class="story-title" contenteditable="true">Article Title</div><div class="story-body" contenteditable="true">Short summary here.</div><button class="del-btn" onclick="removeEl(this,'.side-article')">✕ Remove</button></div>`;
+    container.appendChild(art); art.querySelector('[contenteditable]').focus();
+  }
+  function addColCard() {
+    const grid = document.getElementById('two-col-grid');
+    const card = document.createElement('div'); card.className = 'col-card';
+    card.innerHTML = `<div class="col-img" onclick="triggerImg(this)"><span class="img-hint">Add image</span><input type="file" accept="image/*" style="display:none" onchange="loadImg(event,this.parentElement)"></div><div class="col-content"><div class="story-tag" contenteditable="true">Category</div><div class="story-title" contenteditable="true">Article Title</div><div class="story-body" contenteditable="true">Short description here.</div><button class="del-btn" onclick="removeEl(this,'.col-card')">✕ Remove</button></div>`;
+    grid.appendChild(card); card.querySelector('[contenteditable]').focus();
+  }
+</script>
+
+</body>
+</html>
