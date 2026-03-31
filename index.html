@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Career Forward — Newsletter</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#c8d0db;font-family:'Outfit',Arial,sans-serif;min-height:100vh;}
+#toolbar{position:sticky;top:0;z-index:300;background:#00175A;display:flex;align-items:center;gap:8px;padding:10px 20px;flex-wrap:wrap;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+.tb-brand{font-size:13px;font-weight:700;color:#fff}.tb-brand span{color:#E8B455}.tb-sep{width:1px;height:18px;background:rgba(255,255,255,.15)}
+.tb-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 14px;border-radius:4px;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;white-space:nowrap}
+.tb-btn:hover{background:#006FCF;border-color:#006FCF}.tb-btn.green{background:#16a34a;border-color:#16a34a;font-weight:600}.tb-btn.green:hover{background:#15803d}
+#instructions{background:#1d4ed8;color:#fff;padding:12px 24px;font-family:'DM Mono',monospace;font-size:11px;line-height:1.8;letter-spacing:.03em}
+#instructions strong{color:#fbbf24}.steps{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px}.step{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:4px;padding:4px 12px;display:inline-flex;align-items:center;gap:6px}.step-num{background:#E8B455;color:#00175A;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:10px}
+#page-wrap{padding:28px 20px 60px}
+#nl{max-width:600px;margin:0 auto;background:#fff;box-shadow:0 4px 40px rgba(0,23,90,.2);font-family:Arial,Helvetica,sans-serif}
+.nh{background:#00175A;padding:28px 36px 0;position:relative;overflow:hidden}.nh::after{content:'';position:absolute;bottom:0;right:-40px;width:250px;height:250px;background:radial-gradient(circle,rgba(0,111,207,.25) 0%,transparent 70%);pointer-events:none}
+.nh-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;position:relative;z-index:1}.nh-logo-area{display:flex;align-items:center;gap:14px}.nh-logo{width:52px;height:52px;border-radius:10px;background:#0a2a5e;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;border:1px solid rgba(255,255,255,.12)}.nh-logo img{width:52px;height:52px;object-fit:cover;border-radius:10px}.nh-prog-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:3px}.nh-prog-name{font-size:18px;font-weight:700;color:#fff;line-height:1}.nh-prog-name span{color:#E8B455}.nh-meta{text-align:right;font-size:10px;color:rgba(255,255,255,.3);line-height:1.9}.nh-issue{font-size:12px;color:#E8B455;font-weight:700;display:block}
+.nh-title-row{border-top:1px solid rgba(255,255,255,.1);padding:20px 0 28px;position:relative;z-index:1}.nh-kicker{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#6ab0f5;margin-bottom:8px}.nh-title{font-family:Georgia,'Times New Roman',serif;font-size:52px;font-weight:700;color:#fff;line-height:.9;letter-spacing:-.02em}.nh-title em{font-style:italic;color:#E8B455}.nh-sub{font-size:13px;color:rgba(255,255,255,.45);margin-top:12px;line-height:1.6}
+.accent-bar{height:4px;background:linear-gradient(90deg,#006FCF 0%,#E8B455 65%,rgba(232,180,85,0) 100%)}
+.date-bar{background:#f5f4f0;border-bottom:1px solid #e2e0d8;padding:10px 36px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#888}.date-pill{background:#006FCF;color:#fff;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:700}
+.nb{padding:24px 36px 36px}.sl{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#006FCF;font-weight:700;border-bottom:2px solid #e8f2fc;padding-bottom:6px;margin:24px 0 14px}.sl:first-child{margin-top:0}
+.desk{background:#e8f2fc;border-left:3px solid #006FCF;padding:14px 18px;border-radius:0 4px 4px 0}.desk p{font-size:13.5px;line-height:1.75;color:#1a2a3a}.desk .sign{margin-top:8px;font-size:12px;color:#888;font-style:italic}
+.feature{border:1px solid #e2e0d8;border-radius:4px;overflow:hidden}.fimg{height:160px;background:linear-gradient(135deg,#00175A,#0057A0);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;cursor:pointer}.fimg img,.mimg img{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0}.fimg-hint,.mimg-hint{font-size:10px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.08em;z-index:1}.mimg-hint{font-size:9px;color:rgba(255,255,255,.2)}.fbody{padding:16px 18px 18px}.atag{display:inline-block;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#006FCF;font-weight:700;margin-bottom:6px}.atitle{font-family:Georgia,serif;font-size:22px;font-weight:700;line-height:1.2;color:#00175A;margin-bottom:8px}.abody{font-size:13px;line-height:1.72;color:#2e3a48}.acta{display:inline-block;margin-top:10px;font-size:12px;font-weight:700;color:#006FCF;text-decoration:none}
+.two-col{display:flex;gap:14px}.mc{flex:1;border:1px solid #e2e0d8;border-radius:4px;overflow:hidden}.mimg{height:90px;background:linear-gradient(135deg,#00175A,#0057A0);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;cursor:pointer}.mbody{padding:12px 14px 14px}.mbody .atitle{font-size:15px;margin-bottom:6px}.mbody .abody{font-size:12px}
+.tip{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid #e2e0d8;border-radius:4px;background:#f8f8f5;margin-bottom:10px}.tip:last-child{margin-bottom:0}.tipn{font-family:Georgia,serif;font-size:28px;font-weight:700;color:#006FCF;opacity:.5;line-height:1;flex-shrink:0;width:30px;text-align:center;margin-top:2px}.tipt{font-size:13px;font-weight:700;color:#00175A;margin-bottom:3px}.tipb{font-size:12px;line-height:1.65;color:#444}
+.qbox{background:#00175A;padding:20px 24px;border-radius:4px}.qlabel{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#E8B455;margin-bottom:8px}.qtext{font-family:Georgia,serif;font-size:18px;font-style:italic;line-height:1.45;color:#fff}.qattr{margin-top:10px;font-size:11px;color:rgba(255,255,255,.4)}
+.nf{background:#00175A;padding:20px 36px}.nf-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}.nf-brand{font-family:Georgia,serif;font-size:18px;font-weight:700;color:#fff}.nf-brand em{font-style:italic;color:#E8B455}.nf-sub{font-size:11px;color:rgba(255,255,255,.3);margin-top:3px}.nf-links{font-size:11px;color:rgba(255,255,255,.3);text-align:right;line-height:2.2}.nf-links a{color:#6ab0f5;display:block;text-decoration:none}.nf-bottom{margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07);font-size:10px;color:rgba(255,255,255,.2);text-align:center;letter-spacing:.05em}
+[contenteditable="true"]{outline:none;border-radius:2px;transition:background .12s,box-shadow .12s}body.editing [contenteditable="true"]:hover{background:rgba(0,111,207,.07);cursor:text}body.editing [contenteditable="true"]:focus{background:rgba(232,180,85,.1);box-shadow:0 0 0 2px rgba(232,180,85,.4)}
+.del-btn{display:none;font-size:10px;font-family:'DM Mono',monospace;padding:2px 8px;border-radius:3px;border:1px dashed #ddd;background:transparent;color:#ccc;cursor:pointer;margin-top:6px}body.editing .del-btn{display:inline-block}.del-btn:hover{border-color:#e74c3c;color:#e74c3c}.add-btn{display:none;width:100%;padding:9px;margin-top:10px;border:2px dashed #ddd;background:transparent;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;color:#aaa;letter-spacing:.08em;text-transform:uppercase;border-radius:4px}body.editing .add-btn{display:block}.add-btn:hover{border-color:#006FCF;color:#006FCF}
+#nl.selected-for-copy{outline:3px solid #E8B455;outline-offset:4px}
+
+/* embedded links */
+[contenteditable="true"] a,.abody a,.tipb a,.tipt a,.qtext a,.qattr a,.desk p a,.nf-sub a{color:#006FCF;text-decoration:underline;font-weight:600}
+.qbox a,.nf a,.nh a{color:#6ab0f5;text-decoration:underline}
+a[data-temp-link="true"]{outline:1px dashed rgba(0,111,207,.35);outline-offset:2px}
+
+@media print{#toolbar,#instructions,.del-btn,.add-btn{display:none!important}body{background:white;padding:0}#page-wrap{padding:0}#nl{box-shadow:none;max-width:100%}[contenteditable]{background:transparent!important;box-shadow:none!important}}
+</style>
+</head>
+<body class="editing">
+<div id="toolbar">
+  <div class="tb-brand">✦ <span>Career Forward</span></div>
+  <div class="tb-sep"></div>
+  <button class="tb-btn green" onclick="selectForOutlook()" id="select-btn">① Copy Outlook-ready newsletter</button>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" onclick="addTip()">+ Tip</button>
+  <button class="tb-btn" onclick="addCard()">+ Article</button>
+  <button class="tb-btn" onclick="insertLink()">🔗 Link</button>
+  <button class="tb-btn" onclick="removeLink()">⛓ Remove Link</button>
+  <button class="tb-btn" onclick="toggleEdit()" id="edit-btn">👁 Preview</button>
+  <button class="tb-btn" onclick="openExport()">⇩ Export HTML</button>
+</div>
+
+<div id="instructions">
+  Click into any text block to edit. Select text and use <strong>Link</strong> to embed a URL. Pasted links are preserved. Outlook copy/export keeps inline styles and anchor tags.
+  <div class="steps">
+    <span class="step"><span class="step-num">1</span>Edit content</span>
+    <span class="step"><span class="step-num">2</span>Add links</span>
+    <span class="step"><span class="step-num">3</span>Copy Outlook-ready HTML</span>
+    <span class="step"><span class="step-num">4</span>Paste into Outlook</span>
+  </div>
+</div>
+
+<div id="page-wrap">
+  <div id="nl">
+    <div class="nh">
+      <div class="nh-top">
+        <div class="nh-logo-area">
+          <div class="nh-logo" onclick="triggerImg(this)">
+            <span class="fimg-hint">Logo</span>
+            <input type="file" accept="image/*" style="display:none" onchange="loadImg(event,this.parentElement)">
+          </div>
+          <div>
+            <div class="nh-prog-label" contenteditable="true">Internal Newsletter</div>
+            <div class="nh-prog-name" contenteditable="true">Career <span>Forward</span></div>
+          </div>
+        </div>
+        <div class="nh-meta">
+          <span class="nh-issue" contenteditable="true">Issue 01</span>
+          <div contenteditable="true">Team Edition</div>
+        </div>
+      </div>
+      <div class="nh-title-row">
+        <div class="nh-kicker" contenteditable="true">This Week</div>
+        <div class="nh-title" contenteditable="true">Build <em>momentum</em></div>
+        <div class="nh-sub" contenteditable="true">Updates, insights, and practical actions for the week ahead.</div>
+      </div>
+    </div>
+    <div class="accent-bar"></div>
+    <div class="date-bar">
+      <div contenteditable="true">March 2026</div>
+      <div class="date-pill" contenteditable="true">Weekly Digest</div>
+    </div>
+
+    <div class="nb">
+      <div class="sl">From the desk</div>
+      <div class="desk">
+        <p contenteditable="true">Use this section for the opening note. You can embed a source <a href="https://example.com" target="_blank" rel="noopener noreferrer">link</a> directly in the paragraph.</p>
+        <div class="sign" contenteditable="true">— Editor Name</div>
+      </div>
+
+      <div class="sl">Feature story</div>
+      <div class="feature">
+        <div class="fimg" onclick="triggerImg(this)">
+          <span class="fimg-hint">Add feature image</span>
+          <input type="file" accept="image/*" style="display:none" onchange="loadImg(event,this.parentElement)">
+        </div>
+        <div class="fbody">
+          <div class="atag" contenteditable="true">Featured</div>
+          <div class="atitle" contenteditable="true">Lead article headline</div>
+          <div class="abody" contenteditable="true">Write the main summary here. Add embedded links inside the body where needed.</div>
+          <a class="acta" href="https://example.com" target="_blank" rel="noopener noreferrer" contenteditable="false">Read more</a>
+        </div>
+      </div>
+
+      <div class="sl">More stories</div>
+      <div class="two-col" id="card-grid">
+        <div class="mc">
+          <div class="mimg" onclick="triggerImg(this)">
+            <span class="mimg-hint">Add image</span>
+            <input type="file" accept="image/*" style="display:none" onchange="loadImg(event,this.parentElement)">
+          </div>
+          <div class="mbody">
+            <div class="atag" contenteditable="true">Category</div>
+            <div class="atitle" contenteditable="true">Article title</div>
+            <div class="abody" contenteditable="true">Brief summary with optional <a href="https://example.com" target="_blank" rel="noopener noreferrer">embedded link</a>.</div>
+          </div>
+        </div>
+        <div class="mc">
+          <div class="mimg" onclick="triggerImg(this)">
+            <span class="mimg-hint">Add image</span>
+            <input type="file" accept="image/*" style="display:none" onchange="loadImg(event,this.parentElement)">
+          </div>
+          <div class="mbody">
+            <div class="atag" contenteditable="true">Category</div>
+            <div class="atitle" contenteditable="true">Second article</div>
+            <div class="abody" contenteditable="true">Another short summary. Paste or insert links directly into this copy.</div>
+          </div>
+        </div>
+      </div>
+      <button class="add-btn" onclick="addCard()">+ add article</button>
+
+      <div class="sl">Tips</div>
+      <div id="tips-wrap">
+        <div class="tip">
+          <div class="tipn">1</div>
+          <div>
+            <div class="tipt" contenteditable="true">Keep links explicit</div>
+            <div class="tipb" contenteditable="true">For Outlook, use full URLs or mailto links. Embedded anchors are preserved during export.</div>
+          </div>
+          <button class="del-btn" onclick="removeEl(this,'.tip')">✕</button>
+        </div>
+      </div>
+      <button class="add-btn" onclick="addTip()">+ add tip</button>
+
+      <div class="sl">Quote</div>
+      <div class="qbox">
+        <div class="qlabel" contenteditable="true">Quote</div>
+        <div class="qtext" contenteditable="true">“Add a quote, insight, or callout here.”</div>
+        <div class="qattr" contenteditable="true">Source / Team</div>
+      </div>
+    </div>
+
+    <div class="nf">
+      <div class="nf-inner">
+        <div>
+          <div class="nf-brand" contenteditable="true">Career <em>Forward</em></div>
+          <div class="nf-sub" contenteditable="true">Internal update stream with optional footer <a href="https://example.com" target="_blank" rel="noopener noreferrer">links</a>.</div>
+        </div>
+        <div class="nf-links">
+          <a href="https://example.com" target="_blank" rel="noopener noreferrer" contenteditable="false">Reference link</a>
+          <a href="mailto:team@example.com" target="_blank" rel="noopener noreferrer" contenteditable="false">Contact</a>
+        </div>
+      </div>
+      <div class="nf-bottom" contenteditable="true">For internal use only</div>
+    </div>
+  </div>
+</div>
+
+<div id="export-modal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.6);align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:6px;width:90%;max-width:680px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.4);">
+    <div style="padding:16px 20px;background:#00175A;color:#fff;display:flex;align-items:center;justify-content:space-between;border-radius:6px 6px 0 0;">
+      <div>
+        <div style="font-size:14px;font-weight:600;">Download Newsletter HTML</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:2px;">Outlook-ready export</div>
+      </div>
+      <button onclick="closeExport()" style="background:rgba(255,255,255,.1);border:none;color:#fff;width:28px;height:28px;border-radius:4px;cursor:pointer;font-size:16px;">✕</button>
+    </div>
+    <textarea id="export-ta" readonly style="flex:1;padding:16px;font-family:'DM Mono',monospace;font-size:11px;line-height:1.6;border:none;outline:none;resize:none;overflow-y:auto;color:#333;min-height:300px;"></textarea>
+    <div style="padding:12px 20px;border-top:1px solid #eee;display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="downloadHTML()" style="padding:8px 20px;border-radius:4px;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;background:#f0f0f0;color:#333;border:none;">⬇ Download .html</button>
+      <button onclick="copyExportHTML()" style="padding:8px 20px;border-radius:4px;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;background:#006FCF;color:#fff;border:none;" id="copy-exp-btn">📋 Copy HTML code</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let isEditing = true;
+
+function toggleEdit(){
+  isEditing = !isEditing;
+  document.body.classList.toggle('editing', isEditing);
+  document.getElementById('edit-btn').textContent = isEditing ? '👁 Preview' : '✏ Edit';
+  document.querySelectorAll('[contenteditable]').forEach(el => el.contentEditable = isEditing ? 'true' : 'false');
+}
+
+function triggerImg(el){ if(!isEditing) return; const input = el.querySelector('input[type=file]'); if(input) input.click(); }
+function loadImg(e, container){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    let ex = container.querySelector('img'); if(ex) ex.remove();
+    const img = document.createElement('img'); img.src = ev.target.result;
+    container.appendChild(img);
+    const hint = container.querySelector('.fimg-hint,.mimg-hint'); if(hint) hint.style.display='none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeEl(btn, sel){ const el = btn.closest(sel); if(el && confirm('Remove?')) el.remove(); renumberTips(); }
+function renumberTips(){ document.querySelectorAll('#tips-wrap .tip').forEach((tip,i)=>{ const n=tip.querySelector('.tipn'); if(n) n.textContent = i+1; }); }
+function addTip(){
+  const wrap = document.getElementById('tips-wrap');
+  const t = document.createElement('div');
+  t.className = 'tip';
+  t.innerHTML = `<div class="tipn">${wrap.querySelectorAll('.tip').length+1}</div><div><div class="tipt" contenteditable="true">New tip title</div><div class="tipb" contenteditable="true">Write your tip here.</div></div><button class="del-btn" onclick="removeEl(this,'.tip')">✕</button>`;
+  wrap.appendChild(t); t.querySelector('[contenteditable]').focus();
+}
+function addCard(){
+  const grid = document.getElementById('card-grid');
+  const c = document.createElement('div');
+  c.className = 'mc';
+  c.innerHTML = `
+    <div class="mimg" onclick="triggerImg(this)">
+      <span class="mimg-hint">Add image</span>
+      <input type="file" accept="image/*" style="display:none" onchange="loadImg(event,this.parentElement)">
+    </div>
+    <div class="mbody">
+      <div class="atag" contenteditable="true">Category</div>
+      <div class="atitle" contenteditable="true">Article title</div>
+      <div class="abody" contenteditable="true">Short description here. Add embedded links inside this text if needed.</div>
+      <div class="abody" contenteditable="true"><a href="https://example.com" target="_blank" rel="noopener noreferrer">Optional source link</a></div>
+      <button class="del-btn" onclick="removeEl(this,'.mc')">✕ Remove</button>
+    </div>`;
+  grid.appendChild(c); c.querySelector('[contenteditable]').focus();
+}
+
+function getSafeSelectionRange(){
+  const sel = window.getSelection();
+  if(!sel || sel.rangeCount===0) return null;
+  const range = sel.getRangeAt(0);
+  const container = range.commonAncestorContainer.nodeType===1 ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement;
+  if(!container) return null;
+  const editableHost = container.closest('[contenteditable="true"]');
+  if(!editableHost) return null;
+  return range;
+}
+
+function insertLink(){
+  if(!isEditing) return;
+  const range = getSafeSelectionRange();
+  if(!range){ alert('Select text inside an editable block first.'); return; }
+  let url = prompt('Enter full URL', 'https://');
+  if(!url) return;
+  url = url.trim();
+  if(!/^https?:\/\//i.test(url) && !/^mailto:/i.test(url)) url = 'https://' + url.replace(/^\/+/, '');
+  const selectedText = range.toString().trim();
+  const linkText = selectedText || prompt('Enter link text', 'Open link');
+  if(!linkText) return;
+  const a = document.createElement('a');
+  a.href = url; a.textContent = linkText; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.setAttribute('data-temp-link','true');
+  range.deleteContents(); range.insertNode(a);
+  const sel = window.getSelection(); sel.removeAllRanges();
+  setTimeout(()=>a.removeAttribute('data-temp-link'),1200);
+}
+
+function removeLink(){
+  if(!isEditing) return;
+  const sel = window.getSelection(); if(!sel || sel.rangeCount===0) return;
+  let node = sel.anchorNode; if(node && node.nodeType!==1) node = node.parentElement;
+  const link = node ? node.closest('a') : null;
+  if(!link){ alert('Place the cursor inside a link first.'); return; }
+  link.replaceWith(document.createTextNode(link.textContent));
+}
+
+document.addEventListener('paste', function(e){
+  const target = e.target;
+  if(!target || target.getAttribute('contenteditable') !== 'true') return;
+  const html = e.clipboardData?.getData('text/html');
+  const text = e.clipboardData?.getData('text/plain');
+  if(html){
+    e.preventDefault();
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    wrapper.querySelectorAll('*').forEach(el => {
+      el.removeAttribute('style'); el.removeAttribute('class'); el.removeAttribute('id'); el.removeAttribute('onclick'); el.removeAttribute('contenteditable');
+    });
+    wrapper.querySelectorAll('a').forEach(a => {
+      let href = (a.getAttribute('href')||'').trim();
+      if(!href) href = 'https://example.com';
+      if(!/^https?:\/\//i.test(href) && !/^mailto:/i.test(href)) href = 'https://' + href.replace(/^\/+/, '');
+      a.setAttribute('href', href); a.setAttribute('target','_blank'); a.setAttribute('rel','noopener noreferrer');
+    });
+    document.execCommand('insertHTML', false, wrapper.innerHTML);
+    return;
+  }
+  if(text){ e.preventDefault(); document.execCommand('insertText', false, text); }
+});
+
+function sanitizeClone(){
+  const clone = document.getElementById('nl').cloneNode(true);
+  clone.querySelectorAll('.del-btn,.add-btn,input[type=file],.fimg-hint,.mimg-hint').forEach(el => el.remove());
+  clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+  clone.querySelectorAll('[onclick]').forEach(el => el.removeAttribute('onclick'));
+  clone.querySelectorAll('a').forEach(a => {
+    let href = (a.getAttribute('href')||'').trim();
+    if(!href || href==='#'){ href = 'https://example.com'; a.setAttribute('title','Replace with source URL'); }
+    if(!/^https?:\/\//i.test(href) && !/^mailto:/i.test(href)) href = 'https://' + href.replace(/^\/+/, '');
+    a.setAttribute('href', href); a.setAttribute('target','_blank'); a.setAttribute('rel','noopener noreferrer');
+    if(!a.textContent.trim()) a.textContent = 'Open link';
+  });
+  return clone;
+}
+
+function copyComputedStyles(sourceNode, targetNode){
+  if(!(sourceNode instanceof Element) || !(targetNode instanceof Element)) return;
+  const computed = window.getComputedStyle(sourceNode); const stylePairs = [];
+  for(let i=0;i<computed.length;i++){
+    const prop = computed[i]; const value = computed.getPropertyValue(prop); if(!value) continue;
+    if(prop==='caret-color'||prop==='outline-color'||prop==='outline-style'||prop==='outline-width'||prop.startsWith('animation')||prop.startsWith('transition')||prop==='min-height'||prop==='min-width') continue;
+    stylePairs.push(`${prop}:${value}`);
+  }
+  targetNode.setAttribute('style', stylePairs.join(';'));
+  const srcChildren = Array.from(sourceNode.children); const tgtChildren = Array.from(targetNode.children);
+  for(let i=0;i<srcChildren.length;i++) copyComputedStyles(srcChildren[i], tgtChildren[i]);
+}
+
+function absolutizeLinksAndImages(root){
+  root.querySelectorAll('a').forEach(a => {
+    let href = (a.getAttribute('href')||'').trim();
+    if(!href || href==='#') href = 'https://example.com';
+    if(!/^https?:\/\//i.test(href) && !/^mailto:/i.test(href)) href = 'https://' + href.replace(/^\/+/, '');
+    a.setAttribute('href', href); a.setAttribute('target','_blank'); a.setAttribute('rel','noopener noreferrer');
+    const inline = ['color:#006FCF','text-decoration:underline','font-weight:600'].join(';');
+    const existingStyle = a.getAttribute('style') || '';
+    a.setAttribute('style', existingStyle ? `${existingStyle};${inline}` : inline);
+  });
+  root.querySelectorAll('img').forEach(img => {
+    const src = img.getAttribute('src') || '';
+    if(src.startsWith('/')) img.setAttribute('src', location.origin + src);
+    img.setAttribute('alt', img.getAttribute('alt') || ''); img.setAttribute('border','0');
+  });
+}
+
+function buildStyledFragment(){
+  const source = document.getElementById('nl'); const clone = sanitizeClone();
+  copyComputedStyles(source, clone); absolutizeLinksAndImages(clone);
+  clone.style.margin='0 auto'; clone.style.maxWidth='600px'; clone.style.width='100%'; clone.style.boxShadow='none'; clone.setAttribute('id','');
+  return clone;
+}
+function buildFullHTMLDocument(){
+  const clone = buildStyledFragment();
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body style="margin:0;padding:20px;background:#c8d0db;"><div style="width:100%;background:#c8d0db;padding:0;">${clone.outerHTML}</div></body></html>`;
+}
+function buildCleanHTML(){ return buildFullHTMLDocument(); }
+
+async function copyForOutlook(){
+  const html = buildFullHTMLDocument(); const plain = 'Career Forward newsletter';
+  try{
+    if(window.ClipboardItem && navigator.clipboard?.write){
+      const item = new ClipboardItem({'text/html': new Blob([html], {type:'text/html'}),'text/plain': new Blob([plain], {type:'text/plain'})});
+      await navigator.clipboard.write([item]);
+    } else if(navigator.clipboard?.writeText){ await navigator.clipboard.writeText(html); }
+    else { openExport(); return; }
+    showCopiedPrompt();
+  } catch(err){ openExport(); }
+}
+function selectForOutlook(){ copyForOutlook(); }
+function showCopiedPrompt(){
+  const existing = document.getElementById('float-prompt'); if(existing) existing.remove();
+  const div = document.createElement('div'); div.id='float-prompt';
+  div.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#00175A;color:#fff;padding:28px 36px;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5);text-align:center;z-index:999;font-family:Arial,sans-serif;min-width:360px;border:2px solid #E8B455;';
+  div.innerHTML=`<div style="font-size:30px;margin-bottom:12px;">✓</div><div style="font-size:16px;font-weight:700;margin-bottom:8px;color:#E8B455;">Outlook-ready HTML copied</div><div style="font-size:13px;color:rgba(255,255,255,.75);line-height:1.7;margin-bottom:18px;">Open Outlook → New Email<br>Click in the body and paste.<br><br>Replace any placeholder <strong>https://example.com</strong> links before sending.</div><button onclick="restoreEditor()" style="background:#006FCF;border:none;color:#fff;padding:10px 24px;border-radius:4px;cursor:pointer;font-size:13px;font-weight:600;width:100%;">Back</button>`;
+  document.body.appendChild(div);
+}
+function restoreEditor(){
+  const fp = document.getElementById('float-prompt'); if(fp) fp.remove();
+  document.getElementById('toolbar').style.display=''; document.getElementById('instructions').style.display='';
+  isEditing = true; document.body.classList.add('editing'); document.querySelectorAll('[contenteditable]').forEach(el => el.contentEditable = 'true');
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') restoreEditor(); });
+
+function openExport(){ document.getElementById('export-ta').value = buildFullHTMLDocument(); document.getElementById('export-modal').style.display='flex'; }
+function closeExport(){ document.getElementById('export-modal').style.display='none'; }
+function downloadHTML(){ const blob = new Blob([buildFullHTMLDocument()], {type:'text/html'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'career-forward-outlook-ready-links.html'; a.click(); }
+async function copyExportHTML(){
+  const html = document.getElementById('export-ta').value; const plain = 'Career Forward newsletter';
+  if(window.ClipboardItem && navigator.clipboard?.write){
+    const item = new ClipboardItem({'text/html': new Blob([html], {type:'text/html'}),'text/plain': new Blob([plain], {type:'text/plain'})});
+    await navigator.clipboard.write([item]);
+  } else { await navigator.clipboard.writeText(html); }
+  const btn = document.getElementById('copy-exp-btn'); btn.textContent='✓ Copied!'; btn.style.background='#16a34a'; setTimeout(()=>{btn.textContent='📋 Copy HTML code'; btn.style.background='#006FCF';}, 2500);
+}
+document.getElementById('export-modal').addEventListener('click', function(e){ if(e.target===this) closeExport(); });
+</script>
+</body>
+</html>
