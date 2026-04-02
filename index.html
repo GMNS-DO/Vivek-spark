@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Career Forward — Newsletter Editor</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#c8d0db;min-height:100vh;padding-bottom:60px}
+
+/* ===== TOOLBAR ===== */
+#toolbar{position:fixed;top:0;left:0;right:0;z-index:1000;background:#00175A;padding:8px 16px;display:flex;gap:5px;align-items:center;box-shadow:0 2px 12px rgba(0,0,0,.4);flex-wrap:nowrap;overflow:hidden}
+.tb-brand{font-size:12px;font-weight:700;color:#fff;margin-right:4px;white-space:nowrap}
+.tb-brand span{color:#E8B455}
+.tb-sep{width:1px;height:22px;background:rgba(255,255,255,.15);margin:0 3px;flex-shrink:0}
+.tb-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;padding:5px 11px;border-radius:4px;cursor:pointer;font-size:10px;font-family:monospace;white-space:nowrap;flex-shrink:0;line-height:1.4}
+.tb-btn:hover{background:#006FCF;border-color:#006FCF}
+.tb-btn.green{background:#16a34a;border-color:#16a34a}
+.tb-btn.green:hover{background:#15803d}
+.tb-btn.red{background:rgba(192,57,43,.8);border-color:#c0392b}
+.tb-btn.red:hover{background:#c0392b}
+.tb-btn.link-btn{background:#006FCF;border-color:#006FCF;display:none}
+.tb-btn.link-btn.active{display:inline-block}
+.tb-btn.link-btn:hover{background:#0055aa}
+#toolbar-right{margin-left:auto;display:flex;gap:5px;align-items:center}
+
+/* ===== LAYOUT ===== */
+#wrap{padding:52px 20px 20px;max-width:700px;margin:0 auto}
+#newsletter{background:#fff;max-width:600px;margin:0 auto;box-shadow:0 4px 40px rgba(0,23,90,.2)}
+
+/* ===== HEADER ===== */
+.nl-header{background:#00175A;position:relative}
+.nl-header-table{width:100%;border-collapse:collapse;table-layout:auto}
+.nl-header-table td{border:none;vertical-align:middle;padding:10px 18px}
+.nl-header-logo-cell{width:56px;padding:10px 12px 10px 18px;vertical-align:middle}
+.nl-header-logo{width:48px;height:48px;border-radius:6px;overflow:hidden;display:block;cursor:pointer;border:2px dashed rgba(255,255,255,.2);transition:border-color .15s;position:relative}
+body.editing .nl-header-logo:hover{border-color:#E8B455;cursor:pointer}
+.nl-header-logo img{width:100%;height:100%;object-fit:cover;display:block}
+.nl-header-main-cell{padding-right:10px;white-space:nowrap}
+.nl-header-kicker{font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:#6ab0f5;margin-bottom:2px;display:block;line-height:1.3;min-height:1em}
+.nl-header-title{font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:#fff;line-height:1.1;letter-spacing:-.01em;min-height:1em}
+.nl-header-title em{font-style:italic;color:#E8B455}
+.nl-header-meta-cell{padding-left:10px;text-align:right;vertical-align:middle;white-space:nowrap}
+.nl-header-issue{font-size:10px;color:#E8B455;font-weight:700;display:block;margin-bottom:2px;min-height:1em}
+.nl-header-meta-text{font-size:9px;color:rgba(255,255,255,.35);line-height:1.6;min-height:1em}
+.nl-header-bar{height:3px;background:linear-gradient(90deg,#006FCF 0%,#E8B455 60%,transparent 100%);font-size:0;line-height:0}
+
+/* ===== DATE BAR ===== */
+.nl-date{background:#f5f4f0;border-bottom:1px solid #e2e0d8;padding:6px 18px;display:table;width:100%}
+.nl-date-left{display:table-cell;vertical-align:middle;font-size:10px;color:#888}
+.nl-date-right{display:table-cell;text-align:right;vertical-align:middle}
+.nl-date-pill{background:#006FCF;color:#fff;padding:2px 9px;border-radius:20px;font-size:9px;font-weight:700;display:inline-block}
+
+/* ===== BODY ===== */
+.nl-body{padding:20px 18px}
+
+/* ===== DRAG & DROP ===== */
+.dragging{opacity:.4}
+.drag-over{border-top:3px solid #006FCF!important}
+.drag-over-before::before{content:'';display:block;height:3px;background:#006FCF;margin-bottom:4px}
+.drag-over-after::after{content:'';display:block;height:3px;background:#006FCF;margin-top:4px}
+body.editing .drag-handle{cursor:grab;opacity:.25;transition:opacity .15s;font-size:9px;color:#666;padding:2px 4px;display:inline-block;margin-right:3px;vertical-align:middle;line-height:1}
+body.editing .drag-handle:hover{opacity:1}
+.drag-handle{font-size:9px;opacity:0}
+
+/* ===== SECTION WRAPPER ===== */
+.section-wrap{position:relative;margin-bottom:4px;transition:opacity .15s}
+body.editing .section-wrap:hover .drag-handle{opacity:.25}
+body.editing .section-wrap:hover .drag-handle:hover{opacity:1}
+body.editing .section-wrap:hover .section-controls{opacity:1}
+.section-controls{opacity:0;transition:opacity .2s;display:flex;gap:3px;align-items:center;margin-bottom:5px;padding:2px 0}
+
+/* ===== BUTTONS ===== */
+.sc-btn{background:#fff;border:1px solid #ddd;color:#666;padding:3px 7px;border-radius:3px;cursor:pointer;font-size:9px;font-family:monospace;line-height:1.3;white-space:nowrap}
+.sc-btn:hover{border-color:#006FCF;color:#006FCF}
+.sc-btn.danger:hover{border-color:#c0392b;color:#c0392b}
+.sc-btn.add:hover{border-color:#16a34a;color:#16a34a}
+.section-delete-btn{display:none;margin-left:auto;padding:3px 7px;font-size:9px;background:#fff3f3;border:1px solid #fdd;border-radius:3px;color:#e74c3c;cursor:pointer;font-family:monospace;transition:all .15s}
+body.editing .section-delete-btn{display:block}
+.section-delete-btn:hover{background:#e74c3c;color:#fff;border-color:#e74c3c}
+
+/* ===== DESK ===== */
+.sec-desk{background:#e8f2fc;border-left:3px solid #006FCF;padding:10px 14px;border-radius:0 3px 3px 0;margin-bottom:14px;min-height:40px;cursor:text}
+body.editing .sec-desk:hover{box-shadow:0 0 0 1px #006FCF}
+.desk-text{font-size:12.5px;line-height:1.75;color:#1a2a3a;margin-bottom:5px;min-height:1em}
+.desk-sign{font-size:11px;color:#888;font-style:italic;min-height:1em}
+a{color:#006FCF!important;text-decoration:underline!important;font-weight:600!important}
+a:hover{color:#00175A!important}
+
+/* ===== FEATURE ===== */
+.sec-feature{border:1px solid #e2e0d8;border-radius:3px;overflow:hidden;margin-bottom:12px;min-height:40px}
+body.editing .sec-feature:hover{box-shadow:0 0 0 1px #006FCF}
+.feat-img-wrap{height:130px;background:linear-gradient(135deg,#00175A,#0057A0);position:relative;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;border-bottom:1px solid rgba(255,255,255,.05)}
+body.editing .feat-img-wrap:hover{outline:2px dashed rgba(255,255,255,.5);outline-offset:-2px}
+.feat-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;top:0;left:0}
+.feat-img-hint{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em;text-align:center;pointer-events:none;padding:10px;position:relative;z-index:1}
+.feat-body{padding:12px 14px 14px;cursor:text}
+.feat-tag{font-size:7px;letter-spacing:.12em;text-transform:uppercase;color:#006FCF;font-weight:700;margin-bottom:4px;display:block;min-height:1em}
+.feat-title{font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:700;line-height:1.2;color:#00175A;margin-bottom:6px;min-height:1.2em}
+.feat-desc{font-size:12px;line-height:1.7;color:#2e3a48;min-height:1em;margin-bottom:7px}
+.feat-cta{font-size:11px;font-weight:700;color:#006FCF;text-decoration:none;display:inline-block;padding-right:16px;position:relative;min-height:1em;cursor:pointer}
+.feat-cta::after{content:'\2197';position:absolute;right:0;top:0;font-size:10px}
+
+/* ===== GRID ===== */
+.sec-grid{margin-bottom:12px;min-height:40px}
+body.editing .sec-grid:hover{outline:1px dashed #006FCF;outline-offset:2px;border-radius:3px}
+.grid-inner{display:table;width:100%;table-layout:fixed;border-collapse:collapse}
+.grid-cell{display:table-cell;width:50%;vertical-align:top;padding:0 4px;position:relative}
+.grid-cell:first-child{padding-right:6px}
+.grid-cell:last-child{padding-left:6px}
+.grid-cell-card-wrap{position:relative}
+.card{border:1px solid #e2e0d8;border-radius:3px;overflow:hidden;margin-bottom:8px;min-height:40px;cursor:text}
+body.editing .card:hover{box-shadow:0 0 0 1px #006FCF}
+.card-img{height:75px;background:linear-gradient(135deg,#00175A,#0057A0);position:relative;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;border-bottom:1px solid rgba(255,255,255,.05)}
+body.editing .card-img:hover{outline:2px dashed rgba(255,255,255,.5);outline-offset:-2px}
+.card-img img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;top:0;left:0}
+.card-img-hint{font-size:8px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;text-align:center;pointer-events:none;padding:6px;position:relative;z-index:1}
+.card-body{padding:9px 11px 11px;cursor:text}
+.card-tag{font-size:7px;letter-spacing:.12em;text-transform:uppercase;color:#006FCF;font-weight:700;margin-bottom:3px;display:block;min-height:1em}
+.card-title{font-family:Georgia,'Times New Roman',serif;font-size:13px;font-weight:700;line-height:1.2;color:#00175A;margin-bottom:4px;min-height:1em}
+.card-desc{font-size:11px;line-height:1.6;color:#2e3a48;min-height:1em}
+.card-img-wrap-controls{position:absolute;top:3px;right:3px;z-index:5;opacity:0;transition:opacity .15s}
+body.editing .card:hover .card-img-wrap-controls{opacity:1}
+
+/* ===== TIPS ===== */
+.sec-tips{margin-bottom:12px;min-height:40px}
+body.editing .sec-tips:hover{outline:1px dashed #006FCF;outline-offset:2px;border-radius:3px;padding:2px}
+body.editing .sec-tips:hover{margin:-2px;margin-bottom:10px}
+.tip-item{display:table;width:100%;border:1px solid #e2e0d8;border-radius:3px;background:#f8f8f5;margin-bottom:6px;min-height:30px;position:relative;cursor:text}
+body.editing .tip-item:hover{box-shadow:0 0 0 1px #006FCF}
+.tip-num-cell{display:table-cell;width:30px;text-align:center;vertical-align:middle;padding:8px 0 8px 8px;font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:700;color:#006FCF;opacity:.4;cursor:grab}
+.tip-content-cell{display:table-cell;vertical-align:middle;padding:8px 10px;cursor:text;min-width:0}
+.tip-title-text{font-size:12px;font-weight:700;color:#00175A;margin-bottom:2px;min-height:1em}
+.tip-body-text{font-size:11px;line-height:1.5;color:#444;min-height:1em}
+.tip-item-controls{position:absolute;top:3px;right:3px;z-index:5;opacity:0;transition:opacity .15s}
+body.editing .tip-item:hover .tip-item-controls{opacity:1}
+
+/* ===== QUOTE ===== */
+.sec-quote{background:#00175A;border-radius:3px;padding:14px 18px;margin-bottom:12px;min-height:40px;cursor:text;position:relative}
+body.editing .sec-quote:hover{box-shadow:0 0 0 2px rgba(255,255,255,.2)}
+.quote-label{font-size:7px;letter-spacing:.16em;text-transform:uppercase;color:#E8B455;margin-bottom:4px;display:block;min-height:1em}
+.quote-text{font-family:Georgia,'Times New Roman',serif;font-size:14px;font-style:italic;line-height:1.4;color:#fff;min-height:1em;margin-bottom:5px}
+.quote-author{font-size:9px;color:rgba(255,255,255,.4);min-height:1em}
+
+/* ===== IMAGE BLOCK ===== */
+.sec-img{border:1px solid #e2e0d8;border-radius:3px;overflow:hidden;margin-bottom:12px;background:#f8f8f5;min-height:60px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;padding:20px}
+body.editing .sec-img:hover{outline:2px dashed #006FCF;outline-offset:-2px;box-shadow:0 0 0 1px #006FCF}
+.sec-img img{width:100%;height:auto;display:block;max-width:100%}
+.sec-img-hint{font-size:10px;color:#bbb;text-align:center;pointer-events:none;padding:10px}
+
+/* ===== TEXT BLOCK ===== */
+.sec-text{margin-bottom:12px;min-height:30px;padding:3px 5px;border-radius:3px;cursor:text}
+body.editing .sec-text:hover{outline:1px dashed #006FCF}
+.text-content{font-size:12.5px;line-height:1.7;color:#2e3a48;min-height:1em}
+
+/* ===== ADD BLOCK BAR ===== */
+.add-block-bar{display:none;gap:4px;align-items:center;padding:6px 2px 8px;flex-wrap:wrap}
+body.editing .add-block-bar{display:flex}
+.add-block-label{font-size:9px;color:#aaa;margin-right:4px}
+
+/* ===== FOOTER ===== */
+.nl-footer{background:#00175A;padding:14px 18px}
+.nl-footer-table{width:100%;border-collapse:collapse}
+.nl-footer-table td{vertical-align:middle;padding:0}
+.nl-footer-left{width:60%}
+.nl-footer-right{text-align:right}
+.nl-footer-brand{font-family:Georgia,'Times New Roman',serif;font-size:15px;font-weight:700;color:#fff;min-height:1em}
+.nl-footer-brand em{font-style:italic;color:#E8B455}
+.nl-footer-sub{font-size:9px;color:rgba(255,255,255,.35);margin-top:2px;min-height:1em}
+.nl-footer-links a{display:block;font-size:9px;color:#6ab0f5;text-decoration:none;margin-bottom:2px}
+.nl-footer-links a:hover{text-decoration:underline}
+.nl-footer-bottom{padding-top:8px;margin-top:8px;border-top:1px solid rgba(255,255,255,.07);text-align:center}
+.nl-footer-bottom-text{font-size:9px;color:rgba(255,255,255,.2);min-height:1em}
+
+/* ===== CONTENTEDITABLE ===== */
+body.editing [contenteditable="true"]{outline:none}
+body.editing [contenteditable="true"]:hover{background:rgba(0,111,207,.04);border-radius:2px}
+body.editing [contenteditable="true"]:focus{background:rgba(232,180,85,.07);box-shadow:0 0 0 2px rgba(232,180,85,.25);border-radius:2px}
+
+/* ===== LINK PROMPT ===== */
+#link-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:1999}
+#link-overlay.show{display:block}
+#link-prompt{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#00175A;padding:18px 22px;border-radius:10px;box-shadow:0 12px 50px rgba(0,0,0,.7);z-index:2000;min-width:380px;max-width:90vw}
+#link-prompt.show{display:block}
+.lp-title-bar{font-size:10px;color:#E8B455;font-weight:700;margin-bottom:12px;letter-spacing:.08em;text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.1)}
+#lp-url{padding:9px 12px;border:1px solid rgba(255,255,255,.2);border-radius:5px;font-size:13px;background:rgba(255,255,255,.08);color:#fff;width:100%;margin-bottom:12px;display:block}
+#lp-url::placeholder{color:rgba(255,255,255,.35)}
+.lp-btns{display:flex;gap:8px}
+.lp-btns button{flex:1;padding:8px;border-radius:5px;cursor:pointer;font-size:12px;font-family:monospace;border:none;font-weight:600}
+.lp-btns .ok-btn{background:#16a34a;color:#fff}
+.lp-btns .ok-btn:hover{background:#15803d}
+.lp-btns .cancel-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff}
+.lp-btns .cancel-btn:hover{background:rgba(255,255,255,.2)}
+.lp-btns .del-btn{background:rgba(192,57,43,.7);border:1px solid #c0392b;color:#fff}
+.lp-btns .del-btn:hover{background:#c0392b}
+
+/* ===== IMAGE CROP MODAL ===== */
+#crop-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.88);z-index:3000;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+#crop-modal.show{display:flex}
+#crop-hint-text{color:rgba(255,255,255,.5);font-size:11px;margin-bottom:10px;text-align:center;letter-spacing:.05em}
+#crop-canvas{display:block;max-width:90vw;max-height:60vh;border-radius:5px;background:#000}
+.crop-ctrl-row{display:flex;gap:12px;align-items:center;padding:10px 0 6px;justify-content:center;flex-wrap:wrap}
+.crop-ctrl-row span{color:rgba(255,255,255,.5);font-size:10px;letter-spacing:.05em}
+.crop-ctrl-row input[type="range"]{width:120px;vertical-align:middle}
+.crop-ctrl-row input[type="number"]{width:60px;padding:4px 6px;border:1px solid rgba(255,255,255,.2);border-radius:4px;background:rgba(255,255,255,.08);color:#fff;font-size:11px;text-align:center}
+.crop-ctrl-actions{display:flex;gap:8px;justify-content:center;padding-top:8px}
+.crop-ctrl-actions button{padding:8px 20px;border-radius:5px;cursor:pointer;font-size:12px;font-family:monospace;border:none;font-weight:600}
+.crop-ctrl-actions .ok2{background:#16a34a;color:#fff}
+.crop-ctrl-actions .ok2:hover{background:#15803d}
+.crop-ctrl-actions .cancel2{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.2)}
+.crop-ctrl-actions .cancel2:hover{background:rgba(255,255,255,.25)}
+
+/* ===== PREVIEW MODAL ===== */
+#preview-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.92);z-index:2500;overflow:auto;padding:20px}
+#preview-modal.show{display:block}
+#preview-close{position:fixed;top:14px;right:16px;background:#fff;color:#00175A;border:none;padding:8px 16px;border-radius:5px;cursor:pointer;font-size:11px;font-family:monospace;font-weight:700;z-index:2501;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+#preview-label{color:rgba(255,255,255,.4);font-size:10px;text-align:center;margin-bottom:14px;letter-spacing:.1em;text-transform:uppercase}
+#preview-inner-wrap{max-width:620px;margin:0 auto;background:#fff;border-radius:5px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+
+/* ===== TOAST ===== */
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(10px);background:#00175A;color:#fff;padding:11px 22px;border-radius:8px;font-size:12px;opacity:0;transition:all .3s;z-index:5000;box-shadow:0 6px 24px rgba(0,0,0,.4);border:2px solid #E8B455;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===== CONFIRM ===== */
+#confirm-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:3999}
+#confirm-overlay.show{display:block}
+#confirm-box{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:10px;padding:24px;min-width:320px;max-width:400px;z-index:4000;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+#confirm-box.show{display:block}
+#confirm-box h3{font-size:14px;color:#00175A;margin-bottom:8px}
+#confirm-box p{font-size:12px;color:#666;line-height:1.6;margin-bottom:18px}
+.cfm-btns{display:flex;gap:8px}
+.cfm-btns button{flex:1;padding:8px;border-radius:5px;cursor:pointer;font-size:12px;font-family:monospace;border:none;font-weight:600}
+.cfm-btns .yes-btn{background:#c0392b;color:#fff}
+.cfm-btns .yes-btn:hover{background:#a93226}
+.cfm-btns .no-btn{background:#e2e0d8;color:#555}
+.cfm-btns .no-btn:hover{background:#d0cec8}
+</style>
+</head>
+<body>
+
+<!-- ===== TOOLBAR ===== -->
+<div id="toolbar">
+<div class="tb-brand">&#x2726; Career <span>Forward</span></div>
+
+<button class="tb-btn" id="undoBtn">&#x21B6; Undo</button>
+<button class="tb-btn red" id="discardBtn">&#x2715; Discard</button>
+
+<div class="tb-sep"></div>
+
+<button class="tb-btn link-btn" id="addLinkBtn">&#x1F517; Add Link</button>
+
+<div class="tb-sep"></div>
+
+<button class="tb-btn" id="previewBtn">&#x1F441; Preview</button>
+<button class="tb-btn green" id="copyBtn">&#x1F4CB; Copy for Outlook</button>
+</div>
+
+<!-- ===== LINK PROMPT ===== -->
+<div id="link-overlay"></div>
+<div id="link-prompt">
+<div class="lp-title-bar">Add / Edit Link</div>
+<input type="text" id="lp-url" placeholder="https://example.com" autocomplete="off">
+<div class="lp-btns">
+<button class="ok-btn" id="lp-ok">Add Link</button>
+<button class="del-btn" id="lp-del" style="display:none">Remove Link</button>
+<button class="cancel-btn" id="lp-cancel">Cancel</button>
+</div>
+</div>
+
+<!-- ===== IMAGE CROP ===== -->
+<div id="crop-modal">
+<div id="crop-hint-text">Drag slider to zoom &mdash; image crops to center</div>
+<canvas id="crop-canvas"></canvas>
+<div class="crop-ctrl-row">
+<span>Zoom:</span>
+<input type="range" id="crop-zoom" min="0.3" max="3" step="0.05" value="1">
+<span id="crop-zoom-label">1.0x</span>
+</div>
+<div class="crop-ctrl-actions">
+<button class="cancel2" id="crop-cancel">Cancel</button>
+<button class="ok2" id="crop-insert">Insert Image</button>
+</div>
+</div>
+
+<!-- ===== PREVIEW ===== -->
+<div id="preview-modal">
+<div id="preview-label">Newsletter Preview &mdash; How it will look in Outlook</div>
+<div id="preview-close" onclick="closePreview()">&#x2715; Close</div>
+<div id="preview-inner-wrap"></div>
+</div>
+
+<!-- ===== CONFIRM ===== -->
+<div id="confirm-overlay"></div>
+<div id="confirm-box">
+<h3 id="confirm-title">Confirm</h3>
+<p id="confirm-msg">Are you sure?</p>
+<div class="cfm-btns">
+<button class="no-btn" id="confirm-no">Cancel</button>
+<button class="yes-btn" id="confirm-yes">Confirm</button>
+</div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div id="toast"></div>
+
+<!-- ===== MAIN NEWSLETTER ===== -->
+<div id="wrap">
+<div id="newsletter">
+
+<!-- ===== HEADER ===== -->
+<div class="nl-header">
+<table class="nl-header-table" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td class="nl-header-logo-cell" style="cursor:pointer;" onclick="NL.startLogoUpload()">
+<div class="nl-header-logo" id="logoWrap">
+<img id="logoImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='90' fill='%2300175A'/%3E%3Cg transform='translate(100,100)'%3E%3Cline x1='0' y1='-50' x2='0' y2='-25' stroke='%236ab0f5' stroke-width='8' stroke-linecap='round'/%3E%3Cline x1='0' y1='-50' x2='0' y2='-25' stroke='%23E8B455' stroke-width='8' stroke-linecap='round' transform='rotate(60)'/%3E%3Cline x1='0' y1='-50' x2='0' y2='-25' stroke='%2316a34a' stroke-width='8' stroke-linecap='round' transform='rotate(120)'/%3E%3Cline x1='0' y1='-50' x2='0' y2='-25' stroke='%236ab0f5' stroke-width='8' stroke-linecap='round' transform='rotate(180)'/%3E%3Cline x1='0' y1='-50' x2='0' y2='-25' stroke='%23E8B455' stroke-width='8' stroke-linecap='round' transform='rotate(240)'/%3E%3Cline x1='0' y1='-50' x2='0' y2='-25' stroke='%236ab0f5' stroke-width='8' stroke-linecap='round' transform='rotate(300)'/%3E%3C/g%3E%3C/svg%3E">
+</div>
+</td>
+<td class="nl-header-main-cell">
+<div contenteditable="true" class="nl-header-kicker">This Week in Career Forward</div>
+<div contenteditable="true" class="nl-header-title">Career <em>Forward</em></div>
+</td>
+<td class="nl-header-meta-cell">
+<div contenteditable="true" class="nl-header-issue">Issue 01</div>
+<div class="nl-header-meta-text">Team Edition<br>March 2026</div>
+</td>
+</tr>
+</table>
+<div class="nl-header-bar">&nbsp;</div>
+</div>
+
+<!-- ===== DATE BAR ===== -->
+<div class="nl-date">
+<div class="nl-date-left"><span contenteditable="true">March 2026</span></div>
+<div class="nl-date-right"><span class="nl-date-pill">Weekly Digest</span></div>
+</div>
+
+<!-- ===== BODY ===== -->
+<div class="nl-body" id="nl-body">
+
+<!-- SECTION: DESK -->
+<div class="section-wrap" data-section="desk" draggable="true">
+<div class="section-controls">
+<span class="drag-handle" title="Drag to reorder">&#x2630;</span>
+<button class="sc-btn add" data-action="add-block" data-type="desk">+ Desk</button>
+<button class="sc-btn add" data-action="add-block" data-type="grid">+ Grid</button>
+<button class="sc-btn add" data-action="add-block" data-type="feature">+ Feature</button>
+<button class="sc-btn add" data-action="add-block" data-type="tips">+ Tips</button>
+<button class="sc-btn add" data-action="add-block" data-type="quote">+ Quote</button>
+<button class="sc-btn add" data-action="add-block" data-type="img">+ Image</button>
+<button class="sc-btn add" data-action="add-block" data-type="text">+ Text</button>
+<button class="section-delete-btn" data-action="delete-section">&#x2715;</button>
+</div>
+<div class="sec-desk">
+<div class="desk-text" contenteditable="true">Use this section for your opening note. Select any text, then click <strong style="color:#00175A;background:#fff3cd;padding:0 2px;border-radius:2px;">Add Link</strong> in the toolbar to turn it into a clickable link. Links work in Outlook too.</div>
+<div class="desk-sign" contenteditable="true">— Editor Name</div>
+</div>
+</div>
+
+<!-- SECTION: FEATURE -->
+<div class="section-wrap" data-section="feature" draggable="true">
+<div class="section-controls">
+<span class="drag-handle" title="Drag to reorder">&#x2630;</span>
+<button class="sc-btn add" data-action="add-block" data-type="desk">+ Desk</button>
+<button class="sc-btn add" data-action="add-block" data-type="grid">+ Grid</button>
+<button class="sc-btn add" data-action="add-block" data-type="feature">+ Feature</button>
+<button class="sc-btn add" data-action="add-block" data-type="tips">+ Tips</button>
+<button class="sc-btn add" data-action="add-block" data-type="quote">+ Quote</button>
+<button class="sc-btn add" data-action="add-block" data-type="img">+ Image</button>
+<button class="sc-btn add" data-action="add-block" data-type="text">+ Text</button>
+<button class="section-delete-btn" data-action="delete-section">&#x2715;</button>
+</div>
+<div class="sec-feature">
+<div class="feat-img-wrap" data-action="upload-img">
+<span class="feat-img-hint">&#x2B; Click to add image</span>
+<img class="feat-img-el" src="" alt="" style="display:none">
+</div>
+<div class="feat-body">
+<div contenteditable="true" class="feat-tag">Featured</div>
+<div contenteditable="true" class="feat-title">Lead article headline</div>
+<div contenteditable="true" class="feat-desc">Write the main summary here. <a href="https://example.com">This is how a link appears</a> — blue, underlined, and fully clickable in Outlook.</div>
+<a class="feat-cta" href="https://example.com" data-action="edit-link">Read more &#x2197;</a>
+</div>
+</div>
+</div>
+
+<!-- SECTION: GRID -->
+<div class="section-wrap" data-section="grid" draggable="true">
+<div class="section-controls">
+<span class="drag-handle" title="Drag to reorder">&#x2630;</span>
+<button class="sc-btn add" data-action="add-block" data-type="desk">+ Desk</button>
+<button class="sc-btn add" data-action="add-block" data-type="grid">+ Grid</button>
+<button class="sc-btn add" data-action="add-block" data-type="feature">+ Feature</button>
+<button class="sc-btn add" data-action="add-block" data-type="tips">+ Tips</button>
+<button class="sc-btn add" data-action="add-block" data-type="quote">+ Quote</button>
+<button class="sc-btn add" data-action="add-block" data-type="img">+ Image</button>
+<button class="sc-btn add" data-action="add-block" data-type="text">+ Text</button>
+<button class="section-delete-btn" data-action="delete-section">&#x2715;</button>
+</div>
+<div class="sec-grid">
+<div class="grid-inner">
+
+<div class="grid-cell">
+<div class="grid-cell-card-wrap" draggable="true">
+<span class="drag-handle" style="position:absolute;top:2px;left:4px;z-index:6;opacity:0;pointer-events:none;font-size:8px;color:#666;" data-drag-card>&#x2630;</span>
+<div class="card-img-wrap-controls">
+<button class="sc-btn add" data-action="add-card" style="font-size:8px;padding:2px 5px;">+</button>
+<button class="sc-btn danger" data-action="delete-card" style="font-size:8px;padding:2px 5px;">&#x2715;</button>
+</div>
+<div class="card" style="margin-bottom:0;">
+<div class="card-img" data-action="upload-img">
+<span class="card-img-hint">&#x2B; Image</span>
+<img class="card-img-el" src="" alt="" style="display:none">
+</div>
+<div class="card-body">
+<div contenteditable="true" class="card-tag">Category</div>
+<div contenteditable="true" class="card-title">Article title</div>
+<div contenteditable="true" class="card-desc">Brief summary with <a href="https://example.com">a link</a> inside.</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="grid-cell">
+<div class="grid-cell-card-wrap" draggable="true">
+<span class="drag-handle" style="position:absolute;top:2px;left:4px;z-index:6;opacity:0;pointer-events:none;font-size:8px;color:#666;" data-drag-card>&#x2630;</span>
+<div class="card-img-wrap-controls">
+<button class="sc-btn danger" data-action="delete-card" style="font-size:8px;padding:2px 5px;">&#x2715;</button>
+</div>
+<div class="card" style="margin-bottom:0;">
+<div class="card-img" data-action="upload-img">
+<span class="card-img-hint">&#x2B; Image</span>
+<img class="card-img-el" src="" alt="" style="display:none">
+</div>
+<div class="card-body">
+<div contenteditable="true" class="card-tag">Category</div>
+<div contenteditable="true" class="card-title">Second article</div>
+<div contenteditable="true" class="card-desc">Another summary with <a href="https://example.com">link</a>.</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- SECTION: TIPS -->
+<div class="section-wrap" data-section="tips" draggable="true">
+<div class="section-controls">
+<span class="drag-handle" title="Drag to reorder">&#x2630;</span>
+<button class="sc-btn add" data-action="add-block" data-type="desk">+ Desk</button>
+<button class="sc-btn add" data-action="add-block" data-type="grid">+ Grid</button>
+<button class="sc-btn add" data-action="add-block" data-type="feature">+ Feature</button>
+<button class="sc-btn add" data-action="add-block" data-type="tips">+ Tips</button>
+<button class="sc-btn add" data-action="add-block" data-type="quote">+ Quote</button>
+<button class="sc-btn add" data-action="add-block" data-type="img">+ Image</button>
+<button class="sc-btn add" data-action="add-block" data-type="text">+ Text</button>
+<button class="section-delete-btn" data-action="delete-section">&#x2715;</button>
+</div>
+<div class="sec-tips">
+
+<div class="tip-item" draggable="true">
+<span class="drag-handle" style="position:absolute;top:50%;left:4px;transform:translateY(-50%);opacity:0;font-size:8px;color:#666;" data-drag-tip>&#x2630;</span>
+<div class="tip-item-controls">
+<button class="sc-btn add" data-action="add-tip" style="font-size:8px;padding:2px 5px;">+ Tip</button>
+<button class="sc-btn danger" data-action="delete-tip" style="font-size:8px;padding:2px 5px;">&#x2715;</button>
+</div>
+<div class="tip-num-cell" data-drag-tip>&#x2630;</div>
+<div class="tip-content-cell">
+<div contenteditable="true" class="tip-title-text">Keep links explicit</div>
+<div contenteditable="true" class="tip-body-text">For Outlook, use full URLs (https://...). <a href="https://example.com">Links like this</a> are preserved perfectly when you copy to Outlook.</div>
+</div>
+</div>
+
+<div class="tip-item" draggable="true">
+<span class="drag-handle" style="position:absolute;top:50%;left:4px;transform:translateY(-50%);opacity:0;font-size:8px;color:#666;" data-drag-tip>&#x2630;</span>
+<div class="tip-item-controls">
+<button class="sc-btn add" data-action="add-tip" style="font-size:8px;padding:2px 5px;">+ Tip</button>
+<button class="sc-btn danger" data-action="delete-tip" style="font-size:8px;padding:2px 5px;">&#x2715;</button>
+</div>
+<div class="tip-num-cell" data-drag-tip>&#x2630;</div>
+<div class="tip-content-cell">
+<div contenteditable="true" class="tip-title-text">Tip: Links work everywhere</div>
+<div contenteditable="true" class="tip-body-text">Links you add in the editor will work both in preview and after pasting into Outlook. <a href="https://example.com">Try it out!</a></div>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- SECTION: QUOTE -->
+<div class="section-wrap" data-section="quote" draggable="true">
+<div class="section-controls">
+<span class="drag-handle" title="Drag to reorder">&#x2630;</span>
+<button class="sc-btn add" data-action="add-block" data-type="desk">+ Desk</button>
+<button class="sc-btn add" data-action="add-block" data-type="grid">+ Grid</button>
+<button class="sc-btn add" data-action="add-block" data-type="feature">+ Feature</button>
+<button class="sc-btn add" data-action="add-block" data-type="tips">+ Tips</button>
+<button class="sc-btn add" data-action="add-block" data-type="quote">+ Quote</button>
+<button class="sc-btn add" data-action="add-block" data-type="img">+ Image</button>
+<button class="sc-btn add" data-action="add-block" data-type="text">+ Text</button>
+<button class="section-delete-btn" data-action="delete-section">&#x2715;</button>
+</div>
+<div class="sec-quote">
+<div contenteditable="true" class="quote-label">Quote</div>
+<div contenteditable="true" class="quote-text">"Add a quote, insight, or callout here."</div>
+<div contenteditable="true" class="quote-author">Source / Team</div>
+</div>
+</div>
+
+<!-- SECTION: IMAGE -->
+<div class="section-wrap" data-section="img" draggable="true">
+<div class="section-controls">
+<span class="drag-handle" title="Drag to reorder">&#x2630;</span>
+<button class="sc-btn add" data-action="add-block" data-type="desk">+ Desk</button>
+<button class="sc-btn add" data-action="add-block" data-type="grid">+ Grid</button>
+<button class="sc-btn add" data-action="add-block" data-type="feature">+ Feature</button>
+<button class="sc-btn add" data-action="add-block" data-type="tips">+ Tips</button>
+<button class="sc-btn add" data-action="add-block" data-type="quote">+ Quote</button>
+<button class="sc-btn add" data-action="add-block" data-type="img">+ Image</button>
+<button class="sc-btn add" data-action="add-block" data-type="text">+ Text</button>
+<button class="section-delete-btn" data-action="delete-section">&#x2715;</button>
+</div>
+<div class="sec-img" data-action="upload-img">
+<span class="sec-img-hint">&#x2B; Click to add image</span>
+<img class="sec-img-el" src="" alt="" style="display:none">
+</div>
+</div>
+
+<!-- SECTION: TEXT -->
+<div class="section-wrap" data-section="text" draggable="true">
+<div class="section-controls">
+<span class="drag-handle" title="Drag to reorder">&#x2630;</span>
+<button class="sc-btn add" data-action="add-block" data-type="desk">+ Desk</button>
+<button class="sc-btn add" data-action="add-block" data-type="grid">+ Grid</button>
+<button class="sc-btn add" data-action="add-block" data-type="feature">+ Feature</button>
+<button class="sc-btn add" data-action="add-block" data-type="tips">+ Tips</button>
+<button class="sc-btn add" data-action="add-block" data-type="quote">+ Quote</button>
+<button class="sc-btn add" data-action="add-block" data-type="img">+ Image</button>
+<button class="sc-btn add" data-action="add-block" data-type="text">+ Text</button>
+<button class="section-delete-btn" data-action="delete-section">&#x2715;</button>
+</div>
+<div contenteditable="true" class="sec-text text-content">Add your text content here. Select any text and click <strong style="color:#00175A;background:#fff3cd;padding:0 2px;border-radius:2px;">Add Link</strong> in the toolbar to turn it into a clickable link.</div>
+</div>
+
+<!-- ADD BLOCK BAR -->
+<div class="add-block-bar">
+<span class="add-block-label">Add section:</span>
+<button class="sc-btn add" data-action="add-block" data-type="desk">Desk</button>
+<button class="sc-btn add" data-action="add-block" data-type="grid">Grid</button>
+<button class="sc-btn add" data-action="add-block" data-type="feature">Feature</button>
+<button class="sc-btn add" data-action="add-block" data-type="tips">Tips</button>
+<button class="sc-btn add" data-action="add-block" data-type="quote">Quote</button>
+<button class="sc-btn add" data-action="add-block" data-type="img">Image</button>
+<button class="sc-btn add" data-action="add-block" data-type="text">Text</button>
+</div>
+
+</div><!-- end nl-body -->
+
+<!-- ===== FOOTER ===== -->
+<div class="nl-footer">
+<table class="nl-footer-table" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td class="nl-footer-left">
+<div contenteditable="true" class="nl-footer-brand">Career <em>Forward</em></div>
+<div contenteditable="true" class="nl-footer-sub">Internal update stream with <a href="https://example.com">footer links</a>.</div>
+</td>
+<td class="nl-footer-right">
+<div class="nl-footer-links">
+<a href="https://example.com" data-action="edit-link">Reference link</a>
+<a href="mailto:team@example.com" data-action="edit-link">Contact</a>
+</div>
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<div class="nl-footer-bottom">
+<div contenteditable="true" class="nl-footer-bottom-text">For internal use only</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+
+</div><!-- end newsletter -->
+</div><!-- end wrap -->
+
+<!-- Hidden file inputs -->
+<input type="file" id="logoUploadInput" accept="image/*" style="display:none">
+<input type="file" id="imgUploadInput" accept="image/*" style="display:none">
+
+<script>
+'use strict';
+
+// ================================================================
+// NAMESPACE
+// ================================================================
+var NL = window.NL || {};
+
+// ================================================================
+// STATE
+// ================================================================
+NL.history = [];
+NL.maxHistory = 50;
+NL.isUndoAction = false;
+NL.currentCropTarget = null;
+NL.cropSourceImg = null;
+NL.linkSelectionRange = null;
+NL.linkTargetEl = null;
+NL.dragSrcEl = null;
+NL.dragPendingDelete = null;
+NL.saveTimer = null;
+NL.confirmCallback = null;
+
+// ================================================================
+// INIT
+// ================================================================
+NL.init = function() {
+    document.body.classList.add('editing');
+    NL.saveState('initial');
+    NL.bindEvents();
+};
+
+NL.bindEvents = function() {
+    var body = document.getElementById('nl-body');
+    var newsletter = document.getElementById('newsletter');
+
+    // ---- Toolbar buttons ----
+    document.getElementById('undoBtn').addEventListener('click', NL.undo);
+    document.getElementById('discardBtn').addEventListener('click', NL.confirmDiscard);
+    document.getElementById('addLinkBtn').addEventListener('click', NL.showLinkPromptFromSelection);
+    document.getElementById('previewBtn').addEventListener('click', NL.showPreview);
+    document.getElementById('copyBtn').addEventListener('click', NL.copyForOutlook);
+
+    // ---- Link prompt ----
+    document.getElementById('link-overlay').addEventListener('click', NL.closeLinkPrompt);
+    document.getElementById('lp-cancel').addEventListener('click', NL.closeLinkPrompt);
+    document.getElementById('lp-ok').addEventListener('click', NL.applyLinkFromPrompt);
+    document.getElementById('lp-del').addEventListener('click', NL.removeLinkFromPrompt);
+    document.getElementById('lp-url').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); NL.applyLinkFromPrompt(); }
+        if (e.key === 'Escape') NL.closeLinkPrompt();
+    });
+
+    // ---- Crop modal ----
+    document.getElementById('crop-zoom').addEventListener('input', NL.updateCropPreview);
+    document.getElementById('crop-cancel').addEventListener('click', NL.cancelCrop);
+    document.getElementById('crop-insert').addEventListener('click', NL.confirmCrop);
+
+    // ---- Preview ----
+    document.getElementById('preview-modal').addEventListener('click', function(e) {
+        if (e.target === this) NL.closePreview();
+    });
+
+    // ---- Confirm dialog ----
+    document.getElementById('confirm-overlay').addEventListener('click', NL.closeConfirm);
+    document.getElementById('confirm-no').addEventListener('click', NL.closeConfirm);
+    document.getElementById('confirm-yes').addEventListener('click', NL.executeConfirm);
+
+    // ---- Central event delegation on newsletter body ----
+    newsletter.addEventListener('click', NL.handleClick);
+    newsletter.addEventListener('input', NL.handleInput);
+
+    // ---- Text selection for link button ----
+    document.addEventListener('mouseup', NL.handleSelectionChange);
+    document.addEventListener('keyup', NL.handleSelectionChange);
+
+    // ---- Keyboard shortcuts ----
+    document.addEventListener('keydown', NL.handleKeydown);
+
+    // ---- Drag and drop for sections ----
+    NL.initDragDrop();
+};
+
+NL.handleClick = function(e) {
+    var target = e.target;
+    var action = target.getAttribute('data-action');
+    if (!action) {
+        // Check if clicked inside an [contenteditable] — let browser handle
+        // But if clicking a link directly, handle it
+        if (target.tagName === 'A') {
+            e.preventDefault();
+            e.stopPropagation();
+            NL.editLinkPrompt(target);
+            return;
+        }
+        return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    switch (action) {
+        case 'add-block':
+            var type = target.getAttribute('data-type');
+            NL.addBlock(type);
+            break;
+        case 'delete-section':
+            var wrap = target.closest('.section-wrap');
+            if (wrap) NL.confirmDeleteSection(wrap);
+            break;
+        case 'upload-img':
+            var wrap2 = target.closest('.feat-img-wrap, .card-img, .sec-img');
+            if (wrap2) { NL.currentCropTarget = wrap2; document.getElementById('imgUploadInput').click(); }
+            break;
+        case 'edit-link':
+            e.preventDefault();
+            var link = target.tagName === 'A' ? target : target.closest('a');
+            if (link) NL.editLinkPrompt(link);
+            break;
+        case 'add-card':
+            NL.addCard(target);
+            break;
+        case 'delete-card':
+            NL.deleteCard(target);
+            break;
+        case 'add-tip':
+            NL.addTip(target);
+            break;
+        case 'delete-tip':
+            NL.deleteTip(target);
+            break;
+    }
+};
+
+NL.handleInput = function(e) {
+    var target = e.target;
+    if (target.isContentEditable) {
+        clearTimeout(NL.saveTimer);
+        NL.saveTimer = setTimeout(function() { NL.saveState('edit'); }, 1000);
+    }
+};
+
+NL.handleSelectionChange = function() {
+    var linkBtn = document.getElementById('addLinkBtn');
+    var sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) {
+        linkBtn.classList.remove('active');
+        return;
+    }
+    var text = sel.toString().trim();
+    if (text.length > 0) {
+        var range = sel.getRangeAt(0);
+        var node = range.commonAncestorContainer;
+        var el = node.nodeType === 1 ? node : node.parentElement;
+        var editable = el.closest('[contenteditable="true"]');
+        if (editable) {
+            NL.linkSelectionRange = range.cloneRange();
+            linkBtn.classList.add('active');
+            return;
+        }
+    }
+    linkBtn.classList.remove('active');
+    NL.linkSelectionRange = null;
+};
+
+NL.handleKeydown = function(e) {
+    // Ctrl/Cmd + K = add link
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        NL.showLinkPromptFromSelection();
+    }
+    // Ctrl/Cmd + Z = undo
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        NL.undo();
+    }
+    // Ctrl/Cmd + Y = redo (simple)
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault();
+        // Could implement redo here
+    }
+};
+
+// ================================================================
+// HISTORY
+// ================================================================
+NL.saveState = function(label) {
+    if (NL.isUndoAction) return;
+    var body = document.getElementById('nl-body');
+    NL.history.push({ label: label, html: body.innerHTML, ts: Date.now() });
+    if (NL.history.length > NL.maxHistory) NL.history.shift();
+};
+
+NL.undo = function() {
+    if (NL.history.length <= 1) {
+        NL.toast('Nothing to undo');
+        return;
+    }
+    NL.history.pop();
+    var prev = NL.history[NL.history.length - 1];
+    if (!prev) return;
+    NL.isUndoAction = true;
+    document.getElementById('nl-body').innerHTML = prev.html;
+    NL.isUndoAction = false;
+    NL.toast('Undone: ' + (prev.label || 'previous state'));
+};
+
+NL.confirmDiscard = function() {
+    NL.showConfirm(
+        'Discard All Changes?',
+        'This will reset the newsletter to its original state. All your edits will be lost.',
+        function() {
+            NL.history = [];
+            var initial = document.getElementById('nl-body').innerHTML;
+            document.getElementById('nl-body').innerHTML = initial;
+            NL.saveState('discarded');
+            NL.toast('All changes discarded');
+        }
+    );
+};
+
+// ================================================================
+// CONFIRM DIALOG
+// ================================================================
+NL.showConfirm = function(title, msg, callback) {
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-msg').textContent = msg;
+    NL.confirmCallback = callback;
+    document.getElementById('confirm-overlay').classList.add('show');
+    document.getElementById('confirm-box').classList.add('show');
+};
+
+NL.closeConfirm = function() {
+    document.getElementById('confirm-overlay').classList.remove('show');
+    document.getElementById('confirm-box').classList.remove('show');
+    NL.confirmCallback = null;
+};
+
+NL.executeConfirm = function() {
+    NL.closeConfirm();
+    if (NL.confirmCallback) NL.confirmCallback();
+};
+
+// ================================================================
+// LINK MANAGEMENT
+// ================================================================
+NL.showLinkPromptFromSelection = function() {
+    var sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || !sel.toString().trim()) {
+        NL.toast('Select some text first, then click Add Link');
+        return;
+    }
+    NL.linkTargetEl = null;
+    NL.linkSelectionRange = sel.getRangeAt(0).cloneRange();
+    document.getElementById('lp-url').value = 'https://';
+    document.getElementById('lp-del').style.display = 'none';
+    document.querySelector('#link-prompt .lp-title-bar').textContent = 'Add Link';
+    document.getElementById('link-prompt').classList.add('show');
+    document.getElementById('link-overlay').classList.add('show');
+    setTimeout(function() { document.getElementById('lp-url').focus(); document.getElementById('lp-url').select(); }, 50);
+};
+
+NL.editLinkPrompt = function(linkEl) {
+    NL.linkTargetEl = linkEl;
+    NL.linkSelectionRange = null;
+    document.getElementById('lp-url').value = linkEl.href || 'https://';
+    document.getElementById('lp-del').style.display = 'inline-block';
+    document.querySelector('#link-prompt .lp-title-bar').textContent = 'Edit Link';
+    document.getElementById('link-prompt').classList.add('show');
+    document.getElementById('link-overlay').classList.add('show');
+    setTimeout(function() { document.getElementById('lp-url').focus(); document.getElementById('lp-url').select(); }, 50);
+};
+
+NL.closeLinkPrompt = function() {
+    document.getElementById('link-prompt').classList.remove('show');
+    document.getElementById('link-overlay').classList.remove('show');
+    NL.linkTargetEl = null;
+    NL.linkSelectionRange = null;
+};
+
+NL.applyLinkFromPrompt = function() {
+    var url = document.getElementById('lp-url').value.trim();
+    if (!url) { NL.closeLinkPrompt(); return; }
+    if (!/^https?:\/\//i.test(url) && !/^mailto:/i.test(url)) url = 'https://' + url;
+
+    if (NL.linkTargetEl) {
+        // Editing existing link
+        NL.linkTargetEl.href = url;
+        NL.linkTargetEl.target = '_blank';
+        NL.linkTargetEl.rel = 'noopener noreferrer';
+        NL.closeLinkPrompt();
+        NL.saveState('link edited');
+        NL.toast('Link updated');
+        return;
+    }
+
+    // Creating new link from selection
+    if (!NL.linkSelectionRange) { NL.closeLinkPrompt(); return; }
+
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(NL.linkSelectionRange);
+    var selectedText = NL.linkSelectionRange.toString();
+
+    var a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = selectedText;
+
+    NL.linkSelectionRange.deleteContents();
+    NL.linkSelectionRange.insertNode(a);
+
+    // Move cursor after link
+    var r = document.createRange();
+    r.setStartAfter(a);
+    r.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(r);
+
+    NL.closeLinkPrompt();
+    NL.saveState('link added');
+    NL.toast('Link added');
+};
+
+NL.removeLinkFromPrompt = function() {
+    if (!NL.linkTargetEl) return;
+    var parent = NL.linkTargetEl.parentNode;
+    var text = document.createText(NL.linkTargetEl.textContent);
+    parent.replaceChild(text, NL.linkTargetEl);
+    // Restore cursor
+    var sel = window.getSelection();
+    var r = document.createRange();
+    r.setStartAfter(text);
+    r.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(r);
+    NL.closeLinkPrompt();
+    NL.saveState('link removed');
+    NL.toast('Link removed');
+};
+
+// ================================================================
+// IMAGE HANDLING
+// ================================================================
+NL.startLogoUpload = function() {
+    document.getElementById('logoUploadInput').click();
+};
+
+document.getElementById('logoUploadInput').addEventListener('change', function(e) {
+    var f = e.target.files[0];
+    if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+        var img = document.getElementById('logoImg');
+        if (img) img.src = ev.target.result;
+        NL.saveState('logo changed');
+    };
+    reader.readAsDataURL(f);
+    e.target.value = '';
+});
+
+document.getElementById('imgUploadInput').addEventListener('change', function(e) {
+    var f = e.target.files[0];
+    if (!f || !NL.currentCropTarget) {
+        NL.currentCropTarget = null;
+        return;
+    }
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+        var img = new Image();
+        img.onload = function() {
+            NL.cropSourceImg = img;
+            document.getElementById('crop-zoom').value = 1;
+            document.getElementById('crop-zoom-label').textContent = '1.0x';
+            NL.drawCropCanvas(img, 1);
+            document.getElementById('crop-modal').classList.add('show');
+        };
+        img.src = ev.target.result;
+    };
+    reader.readAsDataURL(f);
+    e.target.value = '';
+});
+
+NL.drawCropCanvas = function(img, zoom) {
+    var canvas = document.getElementById('crop-canvas');
+    // Limit canvas size
+    var maxW = Math.min(window.innerWidth * 0.9, 800);
+    var maxH = window.innerHeight * 0.6;
+    var ratio = img.width / img.height;
+    var w, h;
+    if (ratio > maxW / maxH) { w = maxW; h = w / ratio; }
+    else { h = maxH; w = h * ratio; }
+    canvas.width = w;
+    canvas.height = h;
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, w, h);
+    var scale = zoom;
+    var sw = img.width * scale;
+    var sh = img.height * scale;
+    var sx = (img.width - sw) / 2;
+    var sy = (img.height - sh) / 2;
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+};
+
+NL.updateCropPreview = function() {
+    var zoom = parseFloat(document.getElementById('crop-zoom').value);
+    document.getElementById('crop-zoom-label').textContent = zoom.toFixed(1) + 'x';
+    if (NL.cropSourceImg) NL.drawCropCanvas(NL.cropSourceImg, zoom);
+};
+
+NL.cancelCrop = function() {
+    document.getElementById('crop-modal').classList.remove('show');
+    NL.cropSourceImg = null;
+    NL.currentCropTarget = null;
+};
+
+NL.confirmCrop = function() {
+    if (!NL.cropSourceImg || !NL.currentCropTarget) { NL.cancelCrop(); return; }
+
+    var canvas = document.createElement('canvas');
+    var target = NL.currentCropTarget;
+    var isLogo = target.closest('.nl-header-logo');
+    var isCard = target.classList.contains('card-img');
+    var isFeat = target.classList.contains('feat-img-wrap');
+    var isImgBlock = target.classList.contains('sec-img');
+
+    var w, h;
+    if (isLogo) { w = 48; h = 48; }
+    else if (isCard) { w = 300; h = 80; }
+    else if (isFeat) { w = 598; h = 130; }
+    else if (isImgBlock) { w = 598; h = 300; }
+    else { w = 598; h = 150; }
+
+    var ratio = NL.cropSourceImg.width / NL.cropSourceImg.height;
+    var targetRatio = w / h;
+    var sw, sh, sx, sy;
+
+    if (ratio > targetRatio) {
+        // Image is wider than target — crop sides
+        sh = NL.cropSourceImg.height;
+        sw = sh * targetRatio;
+        sx = (NL.cropSourceImg.width - sw) / 2;
+        sy = 0;
+    } else {
+        // Image is taller than target — crop top/bottom
+        sw = NL.cropSourceImg.width;
+        sh = sw / targetRatio;
+        sx = 0;
+        sy = (NL.cropSourceImg.height - sh) / 2;
+    }
+
+    var zoom = parseFloat(document.getElementById('crop-zoom').value);
+    sw *= zoom; sh *= zoom;
+    sx -= (sw - NL.cropSourceImg.width) / 2;
+    sy -= (sh - NL.cropSourceImg.height) / 2;
+    sx = Math.max(0, sx); sy = Math.max(0, sy);
+    sw = Math.min(sw, NL.cropSourceImg.width - sx);
+    sh = Math.min(sh, NL.cropSourceImg.height - sy);
+
+    canvas.width = w; canvas.height = h;
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(NL.cropSourceImg, sx, sy, sw, sh, 0, 0, w, h);
+    var dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+
+    if (isLogo) {
+        var logoImg = document.getElementById('logoImg');
+        if (logoImg) logoImg.src = dataUrl;
+    } else {
+        var hint = target.querySelector('.feat-img-hint, .card-img-hint, .sec-img-hint');
+        if (hint) hint.style.display = 'none';
+        var imgEl = target.querySelector('img');
+        if (imgEl) {
+            imgEl.src = dataUrl;
+            imgEl.style.display = 'block';
+        }
+    }
+
+    document.getElementById('crop-modal').classList.remove('show');
+    NL.cropSourceImg = null;
+    NL.currentCropTarget = null;
+    NL.saveState('image added');
+    NL.toast('Image inserted');
+};
+
+// ================================================================
+// BLOCK MANAGEMENT
+// ================================================================
+NL.getBlockTemplates = function() {
+    return {
+        desk: '<div class="section-wrap" data-section="desk" draggable="true"><div class="section-controls"><span class="drag-handle" title="Drag to reorder">&#x2630;</span><button class="sc-btn add" data-action="add-block" data-type="desk">+ Desk</button><button class="sc-btn add" data-action="add-block" data-type="grid">+ Grid</button><button class="sc-btn add" data-action="add-block" data-type="feature">+ Feature</button><button class="sc-btn add" data-action="add-block" data-type="tips">+ Tips</button><button class="sc-btn add" data-action="add-block" data-type="quote">+ Quote</button><button class="sc-btn add" data-action="add-block" data-type="img">+ Image</button><button class="sc-btn add" data-action="add-block" data-type="text">+ Text</button><button class="section-delete-btn" data-action="delete-section">&#x2715;</button></div><div class="sec-desk"><div class="desk-text" contenteditable="true">New opening note. Click to edit this text and add your content here.</div><div class="desk-sign" contenteditable="true">— Editor Name</div></div></div>',
+
+        feature: '<div class="section-wrap" data-section="feature" draggable="true"><div class="section-controls"><span class="drag-handle" title="Drag to reorder">&#x2630;</span><button class="sc-btn add" data-action="add-block" data-type="desk">+ Desk</button><button class="sc-btn add" data-action="add-block" data-type="grid">+ Grid</button><button class="sc-btn add" data-action="add-block" data-type="feature">+ Feature</button><button class="sc-btn add" data-action="add-block" data-type="tips">+ Tips</button><button class="sc-btn add" data-action="add-block" data-type="quote">+ Quote</button><button class="sc-btn add" data-action="add-block" data-type="img">+ Image</button><button class="sc-btn add" data-action="add-block" data-type="text">+ Text</button><button class="section-delete-btn" data-action="delete-section">&#x2715;</button></div><div class="sec-feature"><div class="feat-img-wrap" data-action="upload-img"><span class="feat-img-hint">&#x2B; Click to add image</span><img class="feat-img-el" src="" alt="" style="display:none"></div><div class="feat-body"><div contenteditable="true" class="feat-tag">Featured</div><div contenteditable="true" class="feat-title">New headline</div><div contenteditable="true" class="feat-desc">Add your summary here. <a href="https://example.com">Add a link</a>.</div><a class="feat-cta" href="https://example.com" data-action="edit-link">Read more &#x2197;</a></div></div></div>',
+
+        grid: '<div class="section-wrap" data-section="grid" draggable="true"><div class="section-controls"><span class="drag-handle" title="Drag to reorder">&#x2630;</span><button class="sc-btn add" data-action="add-block" data-type="desk">+ Desk</button><button class="sc-btn add" data-action="add-block" data-type="grid">+ Grid</button><button class="sc-btn add" data-action="add-block" data-type="feature">+ Feature</button><button class="sc-btn add" data-action="add-block" data-type="tips">+ Tips</button><button class="sc-btn add" data-action="add-block" data-type="quote">+ Quote</button><button class="sc-btn add" data-action="add-block" data-type="img">+ Image</button><button class="sc-btn add" data-action="add-block" data-type="text">+ Text</button><button class="section-delete-btn" data-action="delete-section">&#x2715;</button></div><div class="sec-grid"><div class="grid-inner"><div class="grid-cell"><div class="grid-cell-card-wrap" draggable="true"><span class="drag-handle" style="position:absolute;top:2px;left:4px;z-index:6;opacity:0;pointer-events:none;font-size:8px;color:#666;" data-drag-card>&#x2630;</span><div class="card-img-wrap-controls"><button class="sc-btn add" data-action="add-card" style="font-size:8px;padding:2px 5px;">+</button><button class="sc-btn danger" data-action="delete-card" style="font-size:8px;padding:2px 5px;">&#x2715;</button></div><div class="card"><div class="card-img" data-action="upload-img"><span class="card-img-hint">&#x2B; Image</span><img class="card-img-el" src="" alt="" style="display:none"></div><div class="card-body"><div contenteditable="true" class="card-tag">Category</div><div contenteditable="true" class="card-title">New article</div><div contenteditable="true" class="card-desc">Brief summary here.</div></div></div></div></div><div class="grid-cell"><div class="grid-cell-card-wrap" draggable="true"><span class="drag-handle" style="position:absolute;top:2px;left:4px;z-index:6;opacity:0;pointer-events:none;font-size:8px;color:#666;" data-drag-card>&#x2630;</span><div class="card-img-wrap-controls"><button class="sc-btn danger" data-action="delete-card" style="font-size:8px;padding:2px 5px;">&#x2715;</button></div><div class="card"><div class="card-img" data-action="upload-img"><span class="card-img-hint">&#x2B; Image</span><img class="card-img-el" src="" alt="" style="display:none"></div><div class="card-body"><div contenteditable="true" class="card-tag">Category</div><div contenteditable="true" class="card-title">Another article</div><div contenteditable="true" class="card-desc">Brief summary here.</div></div></div></div></div></div></div></div>',
+
+        tips: '<div class="section-wrap" data-section="tips" draggable="true"><div class="section-controls"><span class="drag-handle" title="Drag to reorder">&#x2630;</span><button class="sc-btn add" data-action="add-block" data-type="desk">+ Desk</button><button class="sc-btn add" data-action="add-block" data-type="grid">+ Grid</button><button class="sc-btn add" data-action="add-block" data-type="feature">+ Feature</button><button class="sc-btn add" data-action="add-block" data-type="tips">+ Tips</button><button class="sc-btn add" data-action="add-block" data-type="quote">+ Quote</button><button class="sc-btn add" data-action="add-block" data-type="img">+ Image</button><button class="sc-btn add" data-action="add-block" data-type="text">+ Text</button><button class="section-delete-btn" data-action="delete-section">&#x2715;</button></div><div class="sec-tips"><div class="tip-item" draggable="true"><span class="drag-handle" style="position:absolute;top:50%;left:4px;transform:translateY(-50%);opacity:0;font-size:8px;color:#666;" data-drag-tip>&#x2630;</span><div class="tip-item-controls"><button class="sc-btn add" data-action="add-tip" style="font-size:8px;padding:2px 5px;">+ Tip</button><button class="sc-btn danger" data-action="delete-tip" style="font-size:8px;padding:2px 5px;">&#x2715;</button></div><div class="tip-num-cell" data-drag-tip>&#x2630;</div><div class="tip-content-cell"><div contenteditable="true" class="tip-title-text">New tip</div><div contenteditable="true" class="tip-body-text">Tip content goes here. Add your tips and insights.</div></div></div></div></div></div>',
+
+        quote: '<div class="section-wrap" data-section="quote" draggable="true"><div class="section-controls"><span class="drag-handle" title="Drag to reorder">&#x2630;</span><button class="sc-btn add" data-action="add-block" data-type="desk">+ Desk</button><button class="sc-btn add" data-action="add-block" data-type="grid">+ Grid</button><button class="sc-btn add" data-action="add-block" data-type="feature">+ Feature</button><button class="sc-btn add" data-action="add-block" data-type="tips">+ Tips</button><button class="sc-btn add" data-action="add-block" data-type="quote">+ Quote</button><button class="sc-btn add" data-action="add-block" data-type="img">+ Image</button><button class="sc-btn add" data-action="add-block" data-type="text">+ Text</button><button class="section-delete-btn" data-action="delete-section">&#x2715;</button></div><div class="sec-quote"><div contenteditable="true" class="quote-label">Quote</div><div contenteditable="true" class="quote-text">"New quote or insight here."</div><div contenteditable="true" class="quote-author">Source / Attribution</div></div></div>',
+
+        img: '<div class="section-wrap" data-section="img" draggable="true"><div class="section-controls"><span class="drag-handle" title="Drag to reorder">&#x2630;</span><button class="sc-btn add" data-action="add-block" data-type="desk">+ Desk</button><button class="sc-btn add" data-action="add-block" data-type="grid">+ Grid</button><button class="sc-btn add" data-action="add-block" data-type="feature">+ Feature</button><button class="sc-btn add" data-action="add-block" data-type="tips">+ Tips</button><button class="sc-btn add" data-action="add-block" data-type="quote">+ Quote</button><button class="sc-btn add" data-action="add-block" data-type="img">+ Image</button><button class="sc-btn add" data-action="add-block" data-type="text">+ Text</button><button class="section-delete-btn" data-action="delete-section">&#x2715;</button></div><div class="sec-img" data-action="upload-img"><span class="sec-img-hint">&#x2B; Click to add image</span><img class="sec-img-el" src="" alt="" style="display:none"></div></div>',
+
+        text: '<div class="section-wrap" data-section="text" draggable="true"><div class="section-controls"><span class="drag-handle" title="Drag to reorder">&#x2630;</span><button class="sc-btn add" data-action="add-block" data-type="desk">+ Desk</button><button class="sc-btn add" data-action="add-block" data-type="grid">+ Grid</button><button class="sc-btn add" data-action="add-block" data-type="feature">+ Feature</button><button class="sc-btn add" data-action="add-block" data-type="tips">+ Tips</button><button class="sc-btn add" data-action="add-block" data-type="quote">+ Quote</button><button class="sc-btn add" data-action="add-block" data-type="img">+ Image</button><button class="sc-btn add" data-action="add-block" data-type="text">+ Text</button><button class="section-delete-btn" data-action="delete-section">&#x2715;</button></div><div contenteditable="true" class="sec-text text-content">Add your text content here. Select text and click <strong>Add Link</strong> to create links.</div></div>'
+    };
+};
+
+NL.addBlock = function(type) {
+    var templates = NL.getBlockTemplates();
+    var html = templates[type];
+    if (!html) return;
+
+    var body = document.getElementById('nl-body');
+    var addBar = body.querySelector('.add-block-bar');
+    var temp = document.createElement('div');
+    temp.innerHTML = html;
+    var newBlock = temp.firstElementChild;
+
+    if (addBar) {
+        body.insertBefore(newBlock, addBar);
+    } else {
+        body.appendChild(newBlock);
+    }
+
+    newBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    NL.saveState('added ' + type);
+
+    // Re-init drag for this block
+    if (NL.dragSrcEl !== null) {
+        NL.initDragDrop();
+    }
+
+    NL.toast('Added: ' + type);
+};
+
+NL.confirmDeleteSection = function(wrap) {
+    NL.showConfirm(
+        'Remove This Section?',
+        'This section and all its content will be permanently removed.',
+        function() {
+            wrap.remove();
+            NL.saveState('section deleted');
+            NL.toast('Section removed');
+        }
+    );
+};
+
+// ================================================================
+// CARD MANAGEMENT
+// ================================================================
+NL.addCard = function(btn) {
+    var grid = btn.closest('.sec-grid');
+    if (!grid) return;
+    var inner = grid.querySelector('.grid-inner');
+    if (!inner) return;
+
+    var cell = document.createElement('div');
+    cell.className = 'grid-cell';
+    cell.style.paddingLeft = '4px';
+    cell.innerHTML = '<div class="grid-cell-card-wrap" draggable="true"><span class="drag-handle" style="position:absolute;top:2px;left:4px;z-index:6;opacity:0;pointer-events:none;font-size:8px;color:#666;" data-drag-card>&#x2630;</span><div class="card-img-wrap-controls"><button class="sc-btn add" data-action="add-card" style="font-size:8px;padding:2px 5px;">+</button><button class="sc-btn danger" data-action="delete-card" style="font-size:8px;padding:2px 5px;">&#x2715;</button></div><div class="card"><div class="card-img" data-action="upload-img"><span class="card-img-hint">&#x2B; Image</span><img class="card-img-el" src="" alt="" style="display:none"></div><div class="card-body"><div contenteditable="true" class="card-tag">Category</div><div contenteditable="true" class="card-title">New article</div><div contenteditable="true" class="card-desc">Brief summary here.</div></div></div></div>';
+    inner.appendChild(cell);
+    NL.saveState('card added');
+    NL.initDragDrop();
+    NL.toast('Card added');
+};
+
+NL.deleteCard = function(btn) {
+    var cell = btn.closest('.grid-cell');
+    if (!cell) return;
+    var inner = cell.closest('.grid-inner');
+    cell.remove();
+    if (inner) {
+        var cells = inner.querySelectorAll('.grid-cell');
+        cells.forEach(function(c, i) {
+            c.style.paddingRight = i % 2 === 0 ? '6px' : '0';
+            c.style.paddingLeft = i % 2 === 1 ? '6px' : '0';
+        });
+    }
+    NL.saveState('card deleted');
+    NL.toast('Card removed');
+};
+
+// ================================================================
+// TIP MANAGEMENT
+// ================================================================
+NL.addTip = function(btn) {
+    var tips = btn.closest('.sec-tips');
+    if (!tips) return;
+    var items = tips.querySelectorAll('.tip-item');
+    var num = items.length + 1;
+
+    var item = document.createElement('div');
+    item.className = 'tip-item';
+    item.draggable = true;
+    item.innerHTML = '<span class="drag-handle" style="position:absolute;top:50%;left:4px;transform:translateY(-50%);opacity:0;font-size:8px;color:#666;" data-drag-tip>&#x2630;</span><div class="tip-item-controls"><button class="sc-btn add" data-action="add-tip" style="font-size:8px;padding:2px 5px;">+ Tip</button><button class="sc-btn danger" data-action="delete-tip" style="font-size:8px;padding:2px 5px;">&#x2715;</button></div><div class="tip-num-cell" data-drag-tip>&#x2630;</div><div class="tip-content-cell"><div contenteditable="true" class="tip-title-text">New tip</div><div contenteditable="true" class="tip-body-text">Tip content goes here.</div></div>';
+
+    tips.appendChild(item);
+    NL.renumberTips(tips);
+    NL.initDragDrop();
+    NL.saveState('tip added');
+    NL.toast('Tip added');
+};
+
+NL.deleteTip = function(btn) {
+    var item = btn.closest('.tip-item');
+    if (!item) return;
+    var tips = item.closest('.sec-tips');
+    item.remove();
+    if (tips) NL.renumberTips(tips);
+    NL.saveState('tip deleted');
+    NL.toast('Tip removed');
+};
+
+NL.renumberTips = function(tips) {
+    var items = tips.querySelectorAll('.tip-item');
+    items.forEach(function(item, i) {
+        var num = item.querySelector('.tip-num-cell');
+        if (num) num.textContent = i + 1;
+    });
+};
+
+// ================================================================
+// DRAG & DROP
+// ================================================================
+NL.initDragDrop = function() {
+    // Sections
+    var wraps = document.querySelectorAll('.section-wrap');
+    wraps.forEach(function(wrap) {
+        wrap.removeEventListener('dragstart', NL.onDragStart);
+        wrap.removeEventListener('dragend', NL.onDragEnd);
+        wrap.removeEventListener('dragover', NL.onDragOver);
+        wrap.removeEventListener('dragenter', NL.onDragEnter);
+        wrap.removeEventListener('dragleave', NL.onDragLeave);
+        wrap.removeEventListener('drop', NL.onDrop);
+
+        wrap.addEventListener('dragstart', NL.onDragStart);
+        wrap.addEventListener('dragend', NL.onDragEnd);
+        wrap.addEventListener('dragover', NL.onDragOver);
+        wrap.addEventListener('dragenter', NL.onDragEnter);
+        wrap.addEventListener('dragleave', NL.onDragLeave);
+        wrap.addEventListener('drop', NL.onDrop);
+    });
+
+    // Cards
+    var cardWraps = document.querySelectorAll('.grid-cell-card-wrap');
+    cardWraps.forEach(function(wrap) {
+        wrap.removeEventListener('dragstart', NL.onCardDragStart);
+        wrap.removeEventListener('dragend', NL.onDragEnd);
+        wrap.removeEventListener('dragover', NL.onCardDragOver);
+        wrap.removeEventListener('dragenter', NL.onCardDragEnter);
+        wrap.removeEventListener('dragleave', NL.onDragLeave);
+        wrap.removeEventListener('drop', NL.onCardDrop);
+        wrap.setAttribute('draggable', 'true');
+
+        wrap.addEventListener('dragstart', NL.onCardDragStart);
+        wrap.addEventListener('dragend', NL.onDragEnd);
+        wrap.addEventListener('dragover', NL.onCardDragOver);
+        wrap.addEventListener('dragenter', NL.onCardDragEnter);
+        wrap.addEventListener('dragleave', NL.onDragLeave);
+        wrap.addEventListener('drop', NL.onCardDrop);
+    });
+
+    // Tips
+    var tipItems = document.querySelectorAll('.tip-item');
+    tipItems.forEach(function(item) {
+        item.removeEventListener('dragstart', NL.onTipDragStart);
+        item.removeEventListener('dragend', NL.onDragEnd);
+        item.removeEventListener('dragover', NL.onTipDragOver);
+        item.removeEventListener('dragenter', NL.onTipDragEnter);
+        item.removeEventListener('dragleave', NL.onDragLeave);
+        item.removeEventListener('drop', NL.onTipDrop);
+        item.setAttribute('draggable', 'true');
+
+        item.addEventListener('dragstart', NL.onTipDragStart);
+        item.addEventListener('dragend', NL.onDragEnd);
+        item.addEventListener('dragover', NL.onTipDragOver);
+        item.addEventListener('dragenter', NL.onTipDragEnter);
+        item.addEventListener('dragleave', NL.onDragLeave);
+        item.addEventListener('drop', NL.onTipDrop);
+    });
+};
+
+// Section drag
+NL.onDragStart = function(e) {
+    NL.dragSrcEl = this;
+    this.style.opacity = '0.4';
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', 'section');
+};
+
+NL.onDragEnd = function() {
+    this.style.opacity = '1';
+    document.querySelectorAll('.drag-over, .drag-over-before, .drag-over-after').forEach(function(el) {
+        el.classList.remove('drag-over', 'drag-over-before', 'drag-over-after');
+    });
+    NL.dragSrcEl = null;
+};
+
+NL.onDragOver = function(e) {
+    if (e.dataTransfer.types.indexOf('text/plain') === -1) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+};
+
+NL.onDragEnter = function(e) {
+    if (!NL.dragSrcEl || NL.dragSrcEl === this) return;
+    e.preventDefault();
+    document.querySelectorAll('.drag-over, .drag-over-before, .drag-over-after').forEach(function(el) {
+        el.classList.remove('drag-over', 'drag-over-before', 'drag-over-after');
+    });
+    var rect = this.getBoundingClientRect();
+    var midY = rect.top + rect.height / 2;
+    if (e.clientY < midY) {
+        this.classList.add('drag-over-before');
+    } else {
+        this.classList.add('drag-over-after');
+    }
+};
+
+NL.onDragLeave = function(e) {
+    if (!this.contains(e.relatedTarget)) {
+        this.classList.remove('drag-over', 'drag-over-before', 'drag-over-after');
+    }
+};
+
+NL.onDrop = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!NL.dragSrcEl || NL.dragSrcEl === this) return;
+    document.querySelectorAll('.drag-over, .drag-over-before, .drag-over-after').forEach(function(el) {
+        el.classList.remove('drag-over', 'drag-over-before', 'drag-over-after');
+    });
+    var rect = this.getBoundingClientRect();
+    var midY = rect.top + rect.height / 2;
+    var body = document.getElementById('nl-body');
+    if (e.clientY < midY) {
+        body.insertBefore(NL.dragSrcEl, this);
+    } else {
+        body.insertBefore(NL.dragSrcEl, this.nextSibling);
+    }
+    NL.saveState('reordered sections');
+};
+
+// Card drag
+NL.onCardDragStart = function(e) {
+    NL.dragSrcEl = this;
+    this.style.opacity = '0.4';
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', 'card');
+};
+
+NL.onCardDragOver = function(e) {
+    if (e.dataTransfer.types.indexOf('text/plain') === -1) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+};
+
+NL.onCardDragEnter = function(e) {
+    if (!NL.dragSrcEl || NL.dragSrcEl === this) return;
+    e.preventDefault();
+    this.classList.add('drag-over');
+};
+
+NL.onCardDrop = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!NL.dragSrcEl || NL.dragSrcEl === this) return;
+    this.classList.remove('drag-over');
+    var inner = this.closest('.grid-inner');
+    var thisCell = this.closest('.grid-cell');
+    var dragCell = NL.dragSrcEl.closest('.grid-cell');
+    if (!inner || !thisCell || !dragCell || inner !== thisCell.closest('.grid-inner')) return;
+    var rect = this.getBoundingClientRect();
+    var midX = rect.left + rect.width / 2;
+    if (e.clientX < midX) {
+        inner.insertBefore(dragCell, thisCell);
+    } else {
+        inner.insertBefore(dragCell, thisCell.nextSibling);
+    }
+    NL.saveState('reordered cards');
+};
+
+// Tip drag
+NL.onTipDragStart = function(e) {
+    NL.dragSrcEl = this;
+    this.style.opacity = '0.4';
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', 'tip');
+};
+
+NL.onTipDragOver = function(e) {
+    if (e.dataTransfer.types.indexOf('text/plain') === -1) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+};
+
+NL.onTipDragEnter = function(e) {
+    if (!NL.dragSrcEl || NL.dragSrcEl === this) return;
+    e.preventDefault();
+    document.querySelectorAll('.drag-over, .drag-over-before, .drag-over-after').forEach(function(el) {
+        el.classList.remove('drag-over', 'drag-over-before', 'drag-over-after');
+    });
+    var rect = this.getBoundingClientRect();
+    var midY = rect.top + rect.height / 2;
+    if (e.clientY < midY) {
+        this.classList.add('drag-over-before');
+    } else {
+        this.classList.add('drag-over-after');
+    }
+};
+
+NL.onTipDrop = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!NL.dragSrcEl || NL.dragSrcEl === this) return;
+    document.querySelectorAll('.drag-over, .drag-over-before, .drag-over-after').forEach(function(el) {
+        el.classList.remove('drag-over', 'drag-over-before', 'drag-over-after');
+    });
+    var tips = NL.dragSrcEl.closest('.sec-tips');
+    var rect = this.getBoundingClientRect();
+    var midY = rect.top + rect.height / 2;
+    if (e.clientY < midY) {
+        tips.insertBefore(NL.dragSrcEl, this);
+    } else {
+        tips.insertBefore(NL.dragSrcEl, this.nextSibling);
+    }
+    NL.renumberTips(tips);
+    NL.saveState('reordered tips');
+};
+
+// ================================================================
+// PREVIEW
+// ================================================================
+NL.showPreview = function() {
+    var nl = document.getElementById('newsletter');
+    var clone = nl.cloneNode(true);
+    clone.querySelectorAll('.section-controls, .add-block-bar, .section-delete-btn, .card-img-wrap-controls, .tip-item-controls, .logo-upload-input').forEach(function(el) { el.remove(); });
+    clone.querySelectorAll('[contenteditable="true"]').forEach(function(el) { el.removeAttribute('contenteditable'); });
+    clone.querySelectorAll('.feat-img-hint, .card-img-hint, .sec-img-hint').forEach(function(el) { el.remove(); });
+    clone.querySelectorAll('a').forEach(function(a) { a.target = '_blank'; a.rel = 'noopener noreferrer'; });
+    document.getElementById('preview-inner-wrap').innerHTML = '';
+    document.getElementById('preview-inner-wrap').appendChild(clone);
+    document.getElementById('preview-modal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+};
+
+NL.closePreview = function() {
+    document.getElementById('preview-modal').classList.remove('show');
+    document.body.style.overflow = '';
+};
+
+// ================================================================
+// COPY FOR OUTLOOK
+// ================================================================
+NL.copyForOutlook = function() {
+    var nl = document.getElementById('newsletter');
+    var clone = nl.cloneNode(true);
+    clone.querySelectorAll('.section-controls, .add-block-bar, .section-delete-btn, .card-img-wrap-controls, .tip-item-controls, .logo-upload-input').forEach(function(el) { el.remove(); });
+    clone.querySelectorAll('[contenteditable="true"]').forEach(function(el) { el.removeAttribute('contenteditable'); });
+    clone.querySelectorAll('.feat-img-hint, .card-img-hint, .sec-img-hint').forEach(function(el) { el.remove(); });
+
+    var html = NL.buildOutlookHTML(clone);
+
+    if (navigator.clipboard && navigator.clipboard.write) {
+        try {
+            var blob = new Blob([html], { type: 'text/html' });
+            var item = new ClipboardItem({ 'text/html': blob });
+            navigator.clipboard.write([item]).then(function() {
+                NL.toast('Copied! Paste in Outlook with Ctrl+V');
+            }).catch(function() {
+                NL.copyFallback(html);
+            });
+        } catch (err) {
+            NL.copyFallback(html);
+        }
+    } else {
+        NL.copyFallback(html);
+    }
+};
+
+NL.copyFallback = function(html) {
+    var ta = document.createElement('textarea');
+    ta.value = html;
+    ta.style.cssText = 'position:fixed;left:-9999px;top:0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+        document.execCommand('copy');
+        NL.toast('Copied! Paste in Outlook with Ctrl+V');
+    } catch (e) {
+        NL.toast('Copy failed. Please select all (Ctrl+A) and copy manually.');
+    }
+    document.body.removeChild(ta);
+};
+
+NL.buildOutlookHTML = function(clone) {
+    var P = [];
+    var nl = clone;
+
+    P.push('<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head><body style="margin:0;padding:0;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="padding:20px 0;background:#c8d0db;"><tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif;background:#ffffff;max-width:600px;">');
+
+    // HEADER
+    var logoSrc = '';
+    var logoEl = document.getElementById('logoImg');
+    if (logoEl) logoSrc = logoEl.src;
+    var kicker = '', title = '', issue = '';
+    nl.querySelectorAll('.nl-header-kicker').forEach(function(el){ kicker = el.innerHTML; });
+    nl.querySelectorAll('.nl-header-title').forEach(function(el){ title = el.innerHTML; });
+    nl.querySelectorAll('.nl-header-issue').forEach(function(el){ issue = el.innerHTML; });
+
+    P.push('<tr><td style="background:#00175A;padding:0;">');
+    P.push('<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>');
+    P.push('<td width="56" style="padding:10px 12px 10px 18px;vertical-align:middle;"><img src="' + logoSrc + '" width="48" height="48" style="border-radius:6px;display:block;"></td>');
+    P.push('<td style="padding:10px 0;vertical-align:middle;">');
+    P.push('<div style="font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:#6ab0f5;margin-bottom:2px;">' + kicker + '</div>');
+    P.push('<div style="font-family:Georgia,Times New Roman,serif;font-size:22px;font-weight:700;color:#ffffff;line-height:1.1;">' + title + '</div>');
+    P.push('</td>');
+    P.push('<td style="padding:10px 18px 10px 0;text-align:right;vertical-align:middle;">');
+    P.push('<div style="font-size:10px;color:#E8B455;font-weight:700;">' + issue + '</div>');
+    P.push('<div style="font-size:9px;color:rgba(255,255,255,.35);line-height:1.6;">Team Edition<br>March 2026</div>');
+    P.push('</td></tr></table>');
+    P.push('<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>');
+    P.push('<td width="60%" style="height:3px;background:#006FCF;font-size:0;line-height:0;">&nbsp;</td>');
+    P.push('<td width="20%" style="height:3px;background:#E8B455;font-size:0;line-height:0;">&nbsp;</td>');
+    P.push('<td style="height:3px;background:transparent;font-size:0;line-height:0;">&nbsp;</td>');
+    P.push('</tr></table>');
+    P.push('</td></tr>');
+
+    // DATE BAR
+    P.push('<tr><td style="background:#f5f4f0;border-bottom:1px solid #e2e0d8;padding:6px 18px;">');
+    P.push('<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>');
+    P.push('<td style="font-size:10px;color:#888888;">March 2026</td>');
+    P.push('<td style="text-align:right;"><span style="background:#006FCF;color:#ffffff;padding:2px 9px;border-radius:20px;font-size:9px;font-weight:700;">Weekly Digest</span></td>');
+    P.push('</tr></table>');
+    P.push('</td></tr>');
+
+    // BODY
+    P.push('<tr><td style="padding:20px 18px;">');
+    P.push('<table width="100%" cellpadding="0" cellspacing="0" border="0">');
+
+    nl.querySelectorAll('.sec-desk').forEach(function(b) {
+        var txt = '', sig = '';
+        b.querySelectorAll('.desk-text').forEach(function(el){ txt = el.innerHTML; });
+        b.querySelectorAll('.desk-sign').forEach(function(el){ sig = el.innerHTML; });
+        P.push('<tr><td style="background:#e8f2fc;border-left:3px solid #006FCF;padding:10px 14px;border-radius:0 3px 3px 0;margin-bottom:14px;">');
+        P.push('<div style="font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:#006FCF;font-weight:700;border-bottom:2px solid #e8f2fc;padding-bottom:5px;margin-bottom:8px;">From the desk</div>');
+        P.push('<div style="font-size:12.5px;line-height:1.75;color:#1a2a3a;margin-bottom:5px;">' + txt + '</div>');
+        if (sig) P.push('<div style="font-size:11px;color:#888888;font-style:italic;">' + sig + '</div>');
+        P.push('</td></tr><tr><td style="height:6px;font-size:0;line-height:0;">&nbsp;</td></tr>');
+    });
+
+    nl.querySelectorAll('.sec-feature').forEach(function(b) {
+        var imgEl = b.querySelector('.feat-img-el');
+        var imgSrc = (imgEl && imgEl.src && imgEl.style.display !== 'none' && imgEl.src.indexOf('data:image') === 0) ? imgEl.src : '';
+        var tag = '', ttl = '', desc = '', cta = '';
+        var ctaEl = b.querySelector('.feat-cta');
+        b.querySelectorAll('.feat-tag').forEach(function(el){ tag = el.innerHTML; });
+        b.querySelectorAll('.feat-title').forEach(function(el){ ttl = el.innerHTML; });
+        b.querySelectorAll('.feat-desc').forEach(function(el){ desc = el.innerHTML; });
+        if (ctaEl) cta = '<a href="' + (ctaEl.href || '#') + '" style="font-size:11px;font-weight:700;color:#006FCF;text-decoration:underline;">' + ctaEl.textContent + '</a>';
+        P.push('<tr><td style="border:1px solid #e2e0d8;border-radius:3px;overflow:hidden;margin-bottom:12px;">');
+        if (imgSrc) P.push('<img src="' + imgSrc + '" width="600" style="display:block;width:100%;height:130px;object-fit:cover;">');
+        else P.push('<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="height:130px;background:linear-gradient(135deg,#00175A,#0057A0);font-size:0;line-height:0;">&nbsp;</td></tr></table>');
+        P.push('<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:12px 14px 14px;">');
+        P.push('<div style="font-size:7px;letter-spacing:.12em;text-transform:uppercase;color:#006FCF;font-weight:700;margin-bottom:4px;display:block;">' + tag + '</div>');
+        P.push('<div style="font-family:Georgia,Times New Roman,serif;font-size:18px;font-weight:700;line-height:1.2;color:#00175A;margin-bottom:6px;">' + ttl + '</div>');
+        P.push('<div style="font-size:12px;line-height:1.7;color:#2e3a48;margin-bottom:7px;">' + desc + '</div>');
+        if (cta) P.push(cta);
+        P.push('</td></tr></table></td></tr><tr><td style="height:6px;font-size:0;line-height:0;">&nbsp;</td></tr>');
+    });
+
+    nl.querySelectorAll('.grid-inner').forEach(function(g) {
+        var cells = g.querySelectorAll('.grid-cell');
+        P.push('<tr><td style="padding:0;margin-bottom:12px;">');
+        P.push('<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>');
+        cells.forEach(function(c, idx) {
+            var imgEl = c.querySelector('.card-img-el');
+            var imgSrc = (imgEl && imgEl.src && imgEl.style.display !== 'none' && imgEl.src.indexOf('data:image') === 0) ? imgEl.src : '';
+            var ctag = '', cttl = '', cdesc = '';
+            c.querySelectorAll('.card-tag').forEach(function(el){ ctag = el.innerHTML; });
+            c.querySelectorAll('.card-title').forEach(function(el){ cttl = el.innerHTML; });
+            c.querySelectorAll('.card-desc').forEach(function(el){ cdesc = el.innerHTML; });
+            var pad = idx % 2 === 0 ? 'padding-right:6px;' : 'padding-left:6px;';
+            P.push('<td width="50%" valign="top" style="' + pad + '">');
+            P.push('<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="border:1px solid #e2e0d8;border-radius:3px;overflow:hidden;">');
+            if (imgSrc) P.push('<img src="' + imgSrc + '" width="288" style="display:block;width:100%;height:75px;object-fit:cover;">');
+            else P.push('<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="height:75px;background:linear-gradient(135deg,#00175A,#0057A0);font-size:0;line-height:0;">&nbsp;</td></tr></table>');
+            P.push('<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:9px 11px 11px;">');
+            P.push('<div style="font-size:7px;letter-spacing:.12em;text-transform:uppercase;color:#006FCF;font-weight:700;margin-bottom:3px;display:block;">' + ctag + '</div>');
+            P.push('<div style="font-family:Georgia,Times New Roman,serif;font-size:13px;font-weight:700;line-height:1.2;color:#00175A;margin-bottom:4px;">' + cttl + '</div>');
+            P.push('<div style="font-size:11px;line-height:1.6;color:#2e3a48;">' + cdesc + '</div>');
+            P.push('</td></tr></table></td></tr></table></td>');
+        });
+        if (cells.length === 1) P.push('<td width="50%" style="padding-left:6px;">&nbsp;</td>');
+        P.push('</tr></table></td></tr><tr><td style="height:6px;font-size:0;line-height:0;">&nbsp;</td></tr>');
+    });
+
+    nl.querySelectorAll('.tip-item').forEach(function(t) {
+        var num = '', ttl = '', body = '';
+        t.querySelectorAll('.tip-num-cell').forEach(function(el){ num = el.textContent; });
+        t.querySelectorAll('.tip-title-text').forEach(function(el){ ttl = el.innerHTML; });
+        t.querySelectorAll('.tip-body-text').forEach(function(el){ body = el.innerHTML; });
+        P.push('<tr><td style="border:1px solid #e2e0d8;border-radius:3px;background:#f8f8f5;margin-bottom:6px;">');
+        P.push('<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>');
+        P.push('<td width="30" style="text-align:center;vertical-align:middle;padding:8px 0 8px 8px;font-family:Georgia,Times New Roman,serif;font-size:20px;font-weight:700;color:#006FCF;opacity:.4;">' + num + '</td>');
+        P.push('<td style="vertical-align:middle;padding:8px 10px;">');
+        P.push('<div style="font-size:12px;font-weight:700;color:#00175A;margin-bottom:2px;">' + ttl + '</div>');
+        P.push('<div style="font-size:11px;line-height:1.5;color:#444444;">' + body + '</div>');
+        P.push('</td></tr></table>');
+        P.push('</td></tr><tr><td style="height:4px;font-size:0;line-height:0;">&nbsp;</td></tr>');
+    });
+
+    nl.querySelectorAll('.sec-quote').forEach(function(b) {
+        var lbl = '', txt = '', ath = '';
+        b.querySelectorAll('.quote-label').forEach(function(el){ lbl = el.innerHTML; });
+        b.querySelectorAll('.quote-text').forEach(function(el){ txt = el.innerHTML; });
+        b.querySelectorAll('.quote-author').forEach(function(el){ ath = el.innerHTML; });
+        P.push('<tr><td style="background:#00175A;border-radius:3px;padding:14px 18px;margin-bottom:12px;">');
+        P.push('<div style="font-size:7px;letter-spacing:.16em;text-transform:uppercase;color:#E8B455;margin-bottom:4px;display:block;">' + lbl + '</div>');
+        P.push('<div style="font-family:Georgia,Times New Roman,serif;font-size:14px;font-style:italic;line-height:1.4;color:#ffffff;margin-bottom:5px;">' + txt + '</div>');
+        if (ath) P.push('<div style="font-size:9px;color:rgba(255,255,255,.4);">' + ath + '</div>');
+        P.push('</td></tr><tr><td style="height:6px;font-size:0;line-height:0;">&nbsp;</td></tr>');
+    });
+
+    nl.querySelectorAll('.sec-img').forEach(function(b) {
+        var imgEl = b.querySelector('.sec-img-el');
+        var imgSrc = (imgEl && imgEl.src && imgEl.style.display !== 'none' && imgEl.src.indexOf('data:image') === 0) ? imgEl.src : '';
+        if (imgSrc) {
+            P.push('<tr><td style="border:1px solid #e2e0d8;border-radius:3px;overflow:hidden;margin-bottom:12px;">');
+            P.push('<img src="' + imgSrc + '" width="600" style="display:block;width:100%;height:auto;">');
+            P.push('</td></tr><tr><td style="height:6px;font-size:0;line-height:0;">&nbsp;</td></tr>');
+        }
+    });
+
+    nl.querySelectorAll('.sec-text').forEach(function(b) {
+        var txt = b.innerHTML;
+        P.push('<tr><td style="font-size:12.5px;line-height:1.7;color:#2e3a48;margin-bottom:12px;">');
+        P.push(txt);
+        P.push('</td></tr><tr><td style="height:6px;font-size:0;line-height:0;">&nbsp;</td></tr>');
+    });
+
+    P.push('</table></td></tr>');
+
+    // FOOTER
+    var fb = '', fs = '', ff = '';
+    nl.querySelectorAll('.nl-footer-brand').forEach(function(el){ fb = el.innerHTML; });
+    nl.querySelectorAll('.nl-footer-sub').forEach(function(el){ fs = el.innerHTML; });
+    nl.querySelectorAll('.nl-footer-bottom-text').forEach(function(el){ ff = el.innerHTML; });
+    P.push('<tr><td style="background:#00175A;padding:14px 18px;">');
+    P.push('<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>');
+    P.push('<td style="vertical-align:middle;">');
+    P.push('<div style="font-family:Georgia,Times New Roman,serif;font-size:15px;font-weight:700;color:#ffffff;">' + fb + '</div>');
+    P.push('<div style="font-size:9px;color:rgba(255,255,255,.35);margin-top:2px;">' + fs + '</div>');
+    P.push('</td>');
+    P.push('<td style="text-align:right;vertical-align:middle;">');
+    P.push('<a href="https://example.com" style="font-size:9px;color:#6ab0f5;text-decoration:none;display:block;margin-bottom:2px;">Reference link</a>');
+    P.push('<a href="mailto:team@example.com" style="font-size:9px;color:#6ab0f5;text-decoration:none;display:block;">Contact</a>');
+    P.push('</td></tr></table>');
+    P.push('</td></tr>');
+    P.push('<tr><td style="background:#00175A;padding:0 18px 14px;">');
+    P.push('<div style="padding-top:8px;border-top:1px solid rgba(255,255,255,.07);text-align:center;">');
+    P.push('<div style="font-size:9px;color:rgba(255,255,255,.2);">' + ff + '</div>');
+    P.push('</div>');
+    P.push('</td></tr>');
+
+    P.push('</table></td></tr></table></body></html>');
+    return P.join('');
+};
+
+// ================================================================
+// TOAST
+// ================================================================
+NL.toast = function(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 3000);
+};
+
+// ================================================================
+// START
+// ================================================================
+NL.init();
+
+</script>
+</body>
+</html>
